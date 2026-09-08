@@ -1,0 +1,26 @@
+# Flutter SDK (extracted locally, not committed)
+tools/flutter/
+
+# Flutter / Dart
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/pubspec.lock
+**/*.g.dart.bak
+
+# Node
+**/node_modules/
+**/npm-debug.log*
+
+# Env / secrets
+.env
+**/.env
+**/.env.local
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

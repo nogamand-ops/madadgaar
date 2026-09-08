@@ -1,0 +1,17 @@
+{
+  "name": "madadgaar-local-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Madadgaar demo backend: in-memory store, pricing + matching engines, REST + WebSocket API. No external keys or database required.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "ws": "^8.18.0"
+  }
+}
