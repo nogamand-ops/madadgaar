@@ -92,7 +92,13 @@ router.post('/', requireAuth, requireRole('customer'), (req, res) => {
 
   request.status = 'SEARCHING';
   broadcast('request.status_changed', request);
-  startDispatch(request.id);
+  // Give the client a moment to receive this response and subscribe to
+  // this request's live updates before the first candidate offer
+  // broadcasts — otherwise a fast server can broadcast it before the app
+  // has navigated to the searching screen, and the app would silently
+  // miss it (WebSocket broadcasts aren't replayed to late subscribers).
+  // This also paces the "Finding a Madadgaar nearby…" moment naturally.
+  setTimeout(() => startDispatch(request.id), 1500);
 
   res.status(201).json(request);
 });
