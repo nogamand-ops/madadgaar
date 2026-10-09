@@ -1,0 +1,297 @@
+<title>Madadgaar Demo Script</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* Layout: a timed runbook — left rail shows who's speaking (color-coded), right column
+     carries the beat's script. Checklist items persist locally so the team can tick through
+     rehearsals. Palette mirrors the Madadgaar app itself so this reads as the same product. */
+  :root {
+    --bg: #F6F8FA;
+    --card: #FFFFFF;
+    --border: #E2E8F0;
+    --fg: #0F172A;
+    --fg-muted: #55637A;
+    --fg-faint: #94A3B8;
+    --accent: #0E9F72;      /* emerald, shifted slightly off the pure brand hue for AA contrast on white */
+    --accent2: #0284A8;     /* cyan, shifted for contrast on white */
+    --warn: #B45309;
+    --danger: #DC2626;
+    --accent-soft: #E6F6EF;
+    --accent2-soft: #E2F4F9;
+    --warn-soft: #FDF1E0;
+    --font-display: 'Sora', 'Segoe UI', system-ui, sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #07111A; --card: #111827; --border: #223042;
+      --fg: #F8FAFC; --fg-muted: #94A3B8; --fg-faint: #64748B;
+      --accent: #10B981; --accent2: #38BDF8; --warn: #F59E0B; --danger: #EF4444;
+      --accent-soft: rgba(16,185,129,.14); --accent2-soft: rgba(56,189,248,.14); --warn-soft: rgba(245,158,11,.14);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #07111A; --card: #111827; --border: #223042;
+    --fg: #F8FAFC; --fg-muted: #94A3B8; --fg-faint: #64748B;
+    --accent: #10B981; --accent2: #38BDF8; --warn: #F59E0B; --danger: #EF4444;
+    --accent-soft: rgba(16,185,129,.14); --accent2-soft: rgba(56,189,248,.14); --warn-soft: rgba(245,158,11,.14);
+    color-scheme: dark;
+  }
+
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-body); padding-inline: 20px; padding-block: 28px; }
+  * { box-sizing: border-box; }
+  main { max-width: 760px; margin: 0 auto; }
+  h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+  a { color: var(--accent2); }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  /* ---- Header ---- */
+  header.top { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+  .mark { width: 44px; height: 44px; border-radius: 12px; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 800; font-size: 22px; flex: none; }
+  header.top h1 { font-size: 26px; font-weight: 800; }
+  .tagline { color: var(--fg-muted); font-size: 14.5px; margin-top: 2px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .pill { font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border); color: var(--fg-muted); }
+  .pill.accent { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+  .pill.accent2 { background: var(--accent2-soft); color: var(--accent2); border-color: transparent; }
+
+  section { margin-top: 36px; }
+  .section-title { font-size: 13px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--fg-faint); margin-bottom: 12px; }
+
+  /* ---- Checklist ---- */
+  .checklist { display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--card); }
+  .check-item { display: flex; align-items: flex-start; gap: 11px; padding: 12px 14px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .check-item:last-child { border-bottom: none; }
+  .check-item input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--accent); flex: none; }
+  .check-item span { font-size: 14.5px; line-height: 1.45; }
+  .check-item.checked span { color: var(--fg-faint); text-decoration: line-through; }
+  .check-item .note { display: block; color: var(--fg-muted); font-size: 12.5px; margin-top: 2px; }
+
+  /* ---- Role legend ---- */
+  .legend { display: flex; gap: 18px; margin-bottom: 14px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--fg-muted); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .dot.a { background: var(--accent); }
+  .dot.b { background: var(--accent2); }
+
+  /* ---- Script beats ---- */
+  .beat { display: grid; grid-template-columns: 76px 1fr; gap: 16px; padding: 16px 0; border-top: 1px solid var(--border); }
+  .beat:first-of-type { border-top: none; }
+  .beat .time { font-family: var(--font-mono); font-size: 13px; color: var(--fg-faint); padding-top: 2px; }
+  .beat .who { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; margin-bottom: 6px; }
+  .beat .who .dot { width: 8px; height: 8px; }
+  .beat.a .who { color: var(--accent); }
+  .beat.b .who { color: var(--accent2); }
+  .beat.both .who { color: var(--fg-muted); }
+  .beat .say { font-size: 15px; line-height: 1.55; margin: 0 0 8px; }
+  .beat .say em { font-style: normal; color: var(--fg); font-weight: 600; }
+  .beat .do { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: var(--fg-muted); background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; }
+  .beat .do svg { flex: none; margin-top: 2px; }
+  .beat .do + .do { margin-top: 6px; }
+  .beat .proof { margin-top: 8px; font-size: 12.5px; color: var(--accent); background: var(--accent-soft); border-radius: 8px; padding: 7px 10px; }
+
+  /* ---- Numbers reference ---- */
+  .numgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .numcard { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px; }
+  .numcard .val { font-family: var(--font-mono); font-size: 19px; font-weight: 600; }
+  .numcard .lbl { font-size: 12px; color: var(--fg-muted); margin-top: 3px; }
+
+  /* ---- Risk callout ---- */
+  .callout { border-radius: 12px; padding: 14px 16px; font-size: 13.5px; line-height: 1.55; border: 1px solid; }
+  .callout.warn { background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 40%, transparent); color: var(--warn); }
+  .callout.warn b { color: var(--fg); }
+
+  footer { margin-top: 44px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center; color: var(--fg-faint); font-size: 13px; font-style: italic; }
+
+  @media (max-width: 480px) {
+    .beat { grid-template-columns: 1fr; gap: 4px; }
+    .beat .time { padding-top: 0; }
+  }
+</style>
+
+<main>
+  <header class="top">
+    <div class="mark">M</div>
+    <div>
+      <h1>Madadgaar</h1>
+      <div class="tagline">Help, when you need it. — Demo day script</div>
+    </div>
+  </header>
+  <div class="meta-row">
+    <span class="pill accent">6 min target (5–7 window)</span>
+    <span class="pill accent2">2 presenters</span>
+    <span class="pill">3 apps, 1 backend</span>
+  </div>
+
+  <section>
+    <div class="section-title">Before you walk in</div>
+    <div class="legend">
+      <div class="legend-item"><span class="dot a"></span>Person A — Customer + opening/closing</div>
+      <div class="legend-item"><span class="dot b"></span>Person B — Helper + Admin/business</div>
+    </div>
+    <div class="checklist" id="checklist">
+      <label class="check-item"><input type="checkbox" data-id="restart"><span>Restart the backend fresh 10–15 min before you're called (<code class="mono">npm start</code> in <code class="mono">backend/local-server</code>) — gives clean, non-stale "today" numbers on the admin dashboard.<span class="note">A stale server from earlier testing will have leftover active requests that block new ones.</span></span></label>
+      <label class="check-item"><input type="checkbox" data-id="windows"><span>Open 3 windows side by side (or 3 tabs you can flip between fast): Customer, Helper, Admin — arranged so judges can see the handoff between them.</span></label>
+      <label class="check-item"><input type="checkbox" data-id="wifi"><span>Test the venue wifi for real internet access.<span class="note">The map tiles and address search are live OpenStreetMap/Nominatim calls — no key needed, but they do need a working connection.</span></span></label>
+      <label class="check-item"><input type="checkbox" data-id="online"><span>Log Ahmed (helper) in and flip him <b>online</b> before you start the customer flow — makes the "best match found" moment land fast.</span></label>
+      <label class="check-item"><input type="checkbox" data-id="video"><span>Record one full clean run the night before as a backup video, in case live wifi or a browser hiccups on stage.</span></label>
+      <label class="check-item"><input type="checkbox" data-id="roles"><span>Agree who's physically holding/driving which laptop, and rehearse the handoff moment (customer → helper → admin) at least twice.</span></label>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">The script</div>
+
+    <div class="beat a">
+      <div class="time mono">0:00</div>
+      <div>
+        <div class="who"><span class="dot"></span>Person A</div>
+        <p class="say">"Ali is driving home in Islamabad. He runs out of petrol — on the side of the road, at night, no idea who to call. <em>That's the moment Madadgaar exists for.</em> Not an Uber-for-petrol gimmick — Pakistan's on-demand roadside assistance platform. Fuel today, towing and mechanics too, and eventually anything you need help with, fast and verified."</p>
+      </div>
+    </div>
+
+    <div class="beat a">
+      <div class="time mono">0:35</div>
+      <div>
+        <div class="who"><span class="dot"></span>Person A</div>
+        <p class="say">"Here's Ali's phone."</p>
+        <div class="do">Open <b>customer_app</b> → log in as Ali (<span class="mono">+92 300 1234567</span>, code is always <span class="mono">1234</span> in demo mode) → land on Home.</div>
+        <div class="proof">What judges see: real seeded data — "Trusted helpers near you" already lists Ahmed Hussain, 4.9★, verified, live from the backend, not hardcoded.</div>
+      </div>
+    </div>
+
+    <div class="beat a">
+      <div class="time mono">0:55</div>
+      <div>
+        <div class="who"><span class="dot"></span>Person A</div>
+        <p class="say">"One button. <em>I need help.</em>"</p>
+        <div class="do">Tap 🚨 I NEED HELP → "What's wrong?" → <b>I'm out of fuel</b> → Petrol, 5L → Continue.</div>
+      </div>
+    </div>
+
+    <div class="beat a">
+      <div class="time mono">1:15</div>
+      <div>
+        <div class="who"><span class="dot"></span>Person A</div>
+        <p class="say">"Real location — Madadgaar uses OpenStreetMap, no fake pin. And the price, before he commits to anything, broken all the way down. Nothing hidden."</p>
+        <div class="do">Confirm the pre-filled location (F-7 Markaz, Islamabad) → Confirm → point at the breakdown: fuel cost, assistance fee, distance fee, night surcharge, total in <b>PKR</b> → Request Help.</div>
+      </div>
+    </div>
+
+    <div class="beat a">
+      <div class="time mono">1:45</div>
+      <div>
+        <div class="who"><span class="dot"></span>Person A</div>
+        <p class="say">"Finding a Madadgaar nearby… checking… <em>and there he is.</em>"</p>
+        <div class="do">Let the matching animation play (~2–4s) until the "Best match found" card appears.</div>
+        <div class="proof">What judges see: Ahmed Hussain, 4.9★, 412 jobs, Honda CD 70, verified — with his real distance and ETA computed live, not scripted.</div>
+      </div>
+    </div>
+
+    <div class="beat b">
+      <div class="time mono">2:15</div>
+      <div>
+        <div class="who"><span class="dot"></span>Person B</div>
+        <p class="say">"And that request just landed — live — on Ahmed's phone, in a completely separate app, over here."</p>
+        <div class="do">Switch to <b>helper_app</b> (already logged in, online) → incoming request card is showing with a 15-second countdown and what Ahmed earns on this job → tap Accept.</div>
+        <div class="proof">This is the proof point: two independent apps, same backend, real-time WebSocket — not a mocked screen.</div>
+      </div>
+    </div>
+
+    <div class="beat b">
+      <div class="time mono">2:45</div>
+      <div>
+        <div class="who"><span class="dot"></span>Person B</div>
+        <p class="say">"Ahmed's heading over — live map, moving marker, same as the customer sees on their side."</p>
+        <div class="do">On helper_app: tap through <b>I've Arrived</b> → <b>Start Service</b> → <b>Complete Job</b> (compress these, narrate while tapping).</div>
+      </div>
+    </div>
+
+    <div class="beat a">
+      <div class="time mono">3:15</div>
+      <div>
+        <div class="who"><span class="dot"></span>Person A</div>
+        <p class="say">"Back on Ali's side — job done, pay however's normal here: cash, Easypaisa, JazzCash. Then rate your Madadgaar."</p>
+        <div class="do">Switch to customer_app → payment screen → pick JazzCash → Pay → 5 stars → Submit.</div>
+      </div>
+    </div>
+
+    <div class="beat b">
+      <div class="time mono">3:45</div>
+      <div>
+        <div class="who"><span class="dot"></span>Person B</div>
+        <p class="say">"Now the part that makes this a business, not just an app. Every request we just created shows up here, live, for Madadgaar."</p>
+        <div class="do">Switch to <b>admin_dashboard</b> → point at Active Requests, Online Helpers, Today's Revenue, Commission.</div>
+      </div>
+    </div>
+
+    <div class="beat b">
+      <div class="time mono">4:15</div>
+      <div>
+        <div class="who"><span class="dot"></span>Person B</div>
+        <p class="say">"We take 10 to 15% commission plus a small service fee — never on the fuel cost itself, only on the assistance. Scroll down: GMV, helper payouts, take rate, all computed from real completed jobs, not made up."</p>
+        <div class="do">Scroll to Business Metrics → GMV, Madadgaar Revenue, Helper Payouts, Take Rate.</div>
+      </div>
+    </div>
+
+    <div class="beat both">
+      <div class="time mono">5:00</div>
+      <div>
+        <div class="who"><span class="dot"></span>Both</div>
+        <p class="say">"We're launching in Islamabad and Rawalpindi — low-trust-barrier, high-density, easy to verify helpers fast. Lahore, Karachi, Peshawar next. Fuel delivery is the hook because everyone immediately gets it, but the platform is built for any roadside need — and eventually, any on-demand help. <em>Madadgaar hai na.</em>"</p>
+      </div>
+    </div>
+
+    <div class="beat both">
+      <div class="time mono">5:40</div>
+      <div>
+        <div class="who"><span class="dot"></span>Both</div>
+        <p class="say">Stop talking. Let the last screen sit. Open the floor.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">Numbers to have cold</div>
+    <div class="numgrid">
+      <div class="numcard"><div class="val">10–15%</div><div class="lbl">Platform commission</div></div>
+      <div class="numcard"><div class="val">2</div><div class="lbl">Launch cities: Islamabad, Rawalpindi</div></div>
+      <div class="numcard"><div class="val">5</div><div class="lbl">Services at launch</div></div>
+      <div class="numcard"><div class="val">4.9★</div><div class="lbl">Ahmed's rating, 412 jobs</div></div>
+      <div class="numcard"><div class="val">Rs. 1,570</div><div class="lbl">Example fuel job total (5L petrol)</div></div>
+      <div class="numcard"><div class="val">~13%</div><div class="lbl">Demo take rate, live-computed</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">If something breaks</div>
+    <div class="callout warn">
+      <b>Dead internet / map won't load:</b> stick to the saved default location (skip the search box entirely) — the demo flow never requires typing an address. <b>App froze or crashed:</b> switch to the backup video without apologizing twice — say "let me show you the recording" once and move on. <b>Judges want to drive it themselves:</b> let them — hand over the customer app, it's built to not break on an unexpected tap.
+    </div>
+  </section>
+
+  <footer>Madadgaar hai na.</footer>
+</main>
+
+<script>
+  (function () {
+    var KEY = 'madadgaar-demo-checklist';
+    var items = document.querySelectorAll('.check-item input[type=checkbox]');
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+    items.forEach(function (box) {
+      var id = box.dataset.id;
+      if (saved[id]) { box.checked = true; box.closest('.check-item').classList.add('checked'); }
+      box.addEventListener('change', function () {
+        box.closest('.check-item').classList.toggle('checked', box.checked);
+        var state = {};
+        try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+        state[id] = box.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+      });
+    });
+  })();
+</script>
