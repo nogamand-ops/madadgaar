@@ -1,5 +1,5 @@
 name: customer_app
-description: "Madadgaar — Pakistan's on-demand roadside assistance platform (Customer app)."
+description: "Madadgaar — Pakistan's on-demand roadside assistance platform (Customer + Helper app)."
 publish_to: 'none'
 version: 1.0.0+1
 

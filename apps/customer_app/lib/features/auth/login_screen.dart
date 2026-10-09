@@ -4,16 +4,19 @@ import 'package:go_router/go_router.dart';
 import 'package:madadgaar_core/madadgaar_core.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  final String role; // 'customer' | 'helper'
+  const LoginScreen({super.key, required this.role});
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _controller = TextEditingController(text: '3001234567');
+  late final _controller = TextEditingController(text: widget.role == 'helper' ? '3331234567' : '3001234567');
   bool _loading = false;
   String? _error;
+
+  bool get _isHelper => widget.role == 'helper';
 
   Future<void> _continue() async {
     final phone = normalizePkPhone(_controller.text);
@@ -32,7 +35,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Demo Mode: your verification code is $otp')),
       );
-      context.push('/otp', extra: {'phone': phone});
+      context.push('/otp', extra: {'phone': phone, 'role': widget.role});
     } catch (e) {
       setState(() => _error = e.toString());
     } finally {
@@ -43,13 +46,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(leading: const BackButton()),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Spacer(flex: 3),
+              const Spacer(flex: 2),
               Row(
                 children: [
                   Container(
@@ -63,14 +67,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: const Text('M', style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800)),
                   ),
                   const SizedBox(width: AppSpacing.lg),
-                  const Expanded(
-                    child: Text('Madadgaar', style: AppTextStyles.display),
+                  Expanded(
+                    child: Text(_isHelper ? 'Madadgaar\nfor Helpers' : 'Madadgaar', style: AppTextStyles.display),
                   ),
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Help, when you need it.',
+                _isHelper ? 'Earn by helping people nearby.' : 'Help, when you need it.',
                 style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
               ),
               const Spacer(flex: 2),
@@ -98,7 +102,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 style: AppTextStyles.caption.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
                 textAlign: TextAlign.center,
               ),
-              const Spacer(flex: 3),
+              const Spacer(flex: 2),
             ],
           ),
         ),

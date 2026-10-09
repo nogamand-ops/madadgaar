@@ -5,7 +5,8 @@ import 'package:madadgaar_core/madadgaar_core.dart';
 
 class OtpScreen extends ConsumerStatefulWidget {
   final String phone;
-  const OtpScreen({super.key, required this.phone});
+  final String role; // 'customer' | 'helper' — only used when this phone is signing up for the first time
+  const OtpScreen({super.key, required this.phone, required this.role});
 
   @override
   ConsumerState<OtpScreen> createState() => _OtpScreenState();
@@ -13,7 +14,7 @@ class OtpScreen extends ConsumerStatefulWidget {
 
 class _OtpScreenState extends ConsumerState<OtpScreen> {
   final _otpController = TextEditingController(text: '1234');
-  final _nameController = TextEditingController(text: 'Ali Raza');
+  late final _nameController = TextEditingController(text: widget.role == 'helper' ? '' : 'Ali Raza');
   bool _loading = false;
   String? _error;
 
@@ -27,11 +28,24 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       final result = await api.verifyOtp(
         phone: widget.phone,
         otp: _otpController.text.trim(),
-        role: 'customer',
+        role: widget.role,
         name: _nameController.text.trim().isEmpty ? null : _nameController.text.trim(),
       );
       await ref.read(authControllerProvider.notifier).setSession(AuthSession(token: result.token, user: result.user));
-      if (mounted) context.go('/home');
+      if (!mounted) return;
+
+      if (result.user.role == UserRole.helper) {
+        bool hasProfile = true;
+        try {
+          await api.getHelper(result.user.id);
+        } catch (_) {
+          hasProfile = false;
+        }
+        if (!mounted) return;
+        context.go(hasProfile ? '/home' : '/register');
+      } else {
+        context.go('/home');
+      }
     } catch (e) {
       setState(() => _error = e.toString());
     } finally {

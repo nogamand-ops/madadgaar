@@ -5,32 +5,42 @@ import 'package:madadgaar_core/madadgaar_core.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/otp_screen.dart';
 import '../features/legal/legal_screen.dart';
+import '../features/helper_registration/registration_screen.dart';
+import '../features/mode/mode_picker_screen.dart';
 import '../features/request/chat_screen.dart';
 import '../features/request/rating_screen.dart';
 import '../features/request/tracking_screen.dart';
 import '../features/support/support_screen.dart';
-import 'app_shell.dart';
+import 'home_gate.dart';
 
 final customerRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authControllerProvider);
 
   return GoRouter(
-    initialLocation: '/home',
+    initialLocation: '/mode',
     redirect: (context, state) {
       final loggedIn = authState.value != null;
-      final loggingIn = state.matchedLocation == '/login' || state.matchedLocation == '/otp';
+      final preLogin = {'/mode', '/login', '/otp'}.contains(state.matchedLocation);
       if (authState.isLoading) return null;
-      if (!loggedIn && !loggingIn) return '/login';
-      if (loggedIn && loggingIn) return '/home';
+      if (!loggedIn && !preLogin) return '/mode';
+      if (loggedIn && preLogin) return '/home';
       return null;
     },
     routes: [
-      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      GoRoute(path: '/mode', builder: (context, state) => const ModePickerScreen()),
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => LoginScreen(role: (state.extra as Map?)?['role'] as String? ?? 'customer'),
+      ),
       GoRoute(
         path: '/otp',
-        builder: (context, state) => OtpScreen(phone: (state.extra as Map?)?['phone'] as String? ?? ''),
+        builder: (context, state) => OtpScreen(
+          phone: (state.extra as Map?)?['phone'] as String? ?? '',
+          role: (state.extra as Map?)?['role'] as String? ?? 'customer',
+        ),
       ),
-      GoRoute(path: '/home', builder: (context, state) => const AppShell()),
+      GoRoute(path: '/register', builder: (context, state) => const RegistrationScreen()),
+      GoRoute(path: '/home', builder: (context, state) => const HomeGate()),
       GoRoute(
         path: '/track/:requestId',
         builder: (context, state) => TrackingScreen(requestId: state.pathParameters['requestId']!),

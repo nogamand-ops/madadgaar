@@ -32,7 +32,7 @@ class ProfileScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.xxl),
-          _EarnCard(onTap: () => _showEarnInfo(context)),
+          _EarnCard(onTap: () => _showEarnInfo(context, ref)),
           const SizedBox(height: AppSpacing.xl),
           _SectionCard(children: [
             _ProfileTile(icon: Icons.payments_outlined, label: 'Payment methods', onTap: () => _showPaymentMethods(context)),
@@ -71,17 +71,27 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  void _showEarnInfo(BuildContext context) {
+  void _showEarnInfo(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Earn with Madadgaar'),
         content: const Text(
           'Have a bike or car and some free time? Become a verified Madadgaar and earn '
-          'by helping stranded drivers nearby.\n\nDownload the Madadgaar Helper app to apply '
-          '— registration takes a few minutes and your application is reviewed before you go live.',
+          'by helping stranded drivers nearby.\n\nA customer account and a helper account are '
+          'kept separate for verification reasons — log out and sign back in with "I want to '
+          'help & earn" to register as a helper.',
         ),
-        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Got it'))],
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await ref.read(authControllerProvider.notifier).logout();
+            },
+            child: const Text('Log out now'),
+          ),
+        ],
       ),
     );
   }

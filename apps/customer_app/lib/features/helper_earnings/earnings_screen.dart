@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:madadgaar_core/madadgaar_core.dart';
 
-import '../home/helper_home_providers.dart';
+import '../helper_home/helper_home_providers.dart';
 
 class EarningsScreen extends ConsumerStatefulWidget {
   const EarningsScreen({super.key});

@@ -13,6 +13,12 @@ final _helperForRequestProvider = FutureProvider.family.autoDispose<HelperProfil
   return ref.watch(madadgaarApiProvider).getHelper(helperId);
 });
 
+final _customerForRequestProvider = FutureProvider.family.autoDispose<AppUser?, String>((ref, customerId) {
+  return ref.watch(madadgaarApiProvider).getUser(customerId);
+});
+
+/// Shared by both sides of a job: shows the helper's name to the customer,
+/// and the customer's name to the helper, from the same request.
 class ChatScreen extends ConsumerStatefulWidget {
   final String requestId;
   const ChatScreen({super.key, required this.requestId});
@@ -41,10 +47,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final live = ref.watch(requestLiveProvider(widget.requestId));
     final messages = ref.watch(chatControllerProvider(widget.requestId));
     final me = ref.watch(currentUserProvider);
-    final helperAsync = live.request?.helperId != null ? ref.watch(_helperForRequestProvider(live.request!.helperId!)) : null;
+    final request = live.request;
+
+    final iAmCustomer = me != null && request != null && me.id == request.customerId;
+    final otherPartyName = request == null
+        ? null
+        : iAmCustomer
+            ? (request.helperId != null ? ref.watch(_helperForRequestProvider(request.helperId!)).value?.name : null)
+            : ref.watch(_customerForRequestProvider(request.customerId)).value?.name;
 
     return Scaffold(
-      appBar: AppBar(title: Text(helperAsync?.value?.name ?? 'Chat')),
+      appBar: AppBar(title: Text(otherPartyName ?? 'Chat')),
       body: Column(
         children: [
           Padding(

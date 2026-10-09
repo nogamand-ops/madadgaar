@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../features/earnings/earnings_screen.dart';
-import '../features/home/helper_home_screen.dart';
-import '../features/jobs/jobs_screen.dart';
-import '../features/profile/helper_profile_screen.dart';
+import '../features/helper_earnings/earnings_screen.dart';
+import '../features/helper_home/helper_home_screen.dart';
+import '../features/helper_jobs/jobs_screen.dart';
+import '../features/helper_profile/helper_profile_screen.dart';
 
 final helperTabIndexProvider = StateProvider<int>((ref) => 0);
 
-class AppShell extends ConsumerWidget {
-  const AppShell({super.key});
+class HelperAppShell extends ConsumerWidget {
+  const HelperAppShell({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
