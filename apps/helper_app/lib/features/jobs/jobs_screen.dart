@@ -37,16 +37,12 @@ class JobsScreen extends ConsumerWidget {
                 final service = services.where((s) => s.key == job.serviceKey).firstOrNull;
                 return Container(
                   padding: const EdgeInsets.all(AppSpacing.lg),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(AppRadius.lg),
-                    border: Border.all(color: Theme.of(context).dividerColor),
-                  ),
+                  decoration: surfaceDecoration(context),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(children: [
-                        Text(service?.icon ?? '🛠️', style: const TextStyle(fontSize: 20)),
+                        ServiceIconBadge(serviceKey: job.serviceKey, size: 34),
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(child: Text(service?.name ?? job.serviceKey, style: AppTextStyles.h3)),
                         StatusBadge(job.status, forHelper: true),

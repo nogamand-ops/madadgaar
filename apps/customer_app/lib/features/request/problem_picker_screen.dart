@@ -5,12 +5,12 @@ import 'package:madadgaar_core/madadgaar_core.dart';
 import 'request_flow_nav.dart';
 
 const _problems = [
-  (key: 'fuel', emoji: '⛽', label: "I'm out of fuel"),
-  (key: 'battery', emoji: '🔋', label: 'My battery is dead'),
-  (key: 'tire', emoji: '🛞', label: 'I have a flat tire'),
-  (key: 'mechanic', emoji: '🔧', label: 'I need a mechanic'),
-  (key: 'towing', emoji: '🚚', label: 'I need towing'),
-  (key: 'other', emoji: '❓', label: 'Other problem'),
+  (key: 'fuel', label: "I'm out of fuel"),
+  (key: 'battery', label: 'My battery is dead'),
+  (key: 'tire', label: 'I have a flat tire'),
+  (key: 'mechanic', label: 'I need a mechanic'),
+  (key: 'towing', label: 'I need towing'),
+  (key: 'other', label: 'Other problem'),
 ];
 
 class ProblemPickerScreen extends ConsumerWidget {
@@ -27,7 +27,7 @@ class ProblemPickerScreen extends ConsumerWidget {
         itemBuilder: (context, i) {
           final p = _problems[i];
           return _ProblemTile(
-            emoji: p.emoji,
+            serviceKey: p.key,
             label: p.label,
             onTap: () => enterServiceFlow(context, ref, p.key),
           );
@@ -38,28 +38,25 @@ class ProblemPickerScreen extends ConsumerWidget {
 }
 
 class _ProblemTile extends StatelessWidget {
-  final String emoji;
+  final String serviceKey;
   final String label;
   final VoidCallback onTap;
-  const _ProblemTile({required this.emoji, required this.label, required this.onTap});
+  const _ProblemTile({required this.serviceKey, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Theme.of(context).colorScheme.surface,
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(AppRadius.lg),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(color: Theme.of(context).dividerColor),
-          ),
+          decoration: surfaceDecoration(context),
           child: Row(
             children: [
-              Text(emoji, style: const TextStyle(fontSize: 28)),
+              ServiceIconBadge(serviceKey: serviceKey, size: 46),
               const SizedBox(width: AppSpacing.lg),
               Expanded(child: Text(label, style: AppTextStyles.h3)),
               Icon(Icons.chevron_right_rounded, color: Theme.of(context).textTheme.bodySmall?.color),

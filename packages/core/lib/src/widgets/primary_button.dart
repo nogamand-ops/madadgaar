@@ -62,12 +62,13 @@ class EmergencyButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.danger,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.lg + 4)),
-          elevation: 0,
+          elevation: 6,
+          shadowColor: AppColors.danger.withValues(alpha: 0.45),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('🚨', style: TextStyle(fontSize: 26)),
+            const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 26),
             const SizedBox(width: AppSpacing.md),
             Text(
               label,

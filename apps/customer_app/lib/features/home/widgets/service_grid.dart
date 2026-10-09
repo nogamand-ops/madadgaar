@@ -18,27 +18,24 @@ class ServiceGrid extends StatelessWidget {
         crossAxisCount: 3,
         mainAxisSpacing: AppSpacing.md,
         crossAxisSpacing: AppSpacing.md,
-        childAspectRatio: 0.92,
+        childAspectRatio: 0.88,
       ),
       itemBuilder: (context, i) {
         final s = visible[i];
         return Material(
-          color: Theme.of(context).colorScheme.surface,
+          color: Colors.transparent,
           borderRadius: BorderRadius.circular(AppRadius.lg),
           child: InkWell(
             onTap: () => onTap(s.key),
             borderRadius: BorderRadius.circular(AppRadius.lg),
             child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-                border: Border.all(color: Theme.of(context).dividerColor),
-              ),
-              padding: const EdgeInsets.all(AppSpacing.sm),
+              decoration: surfaceDecoration(context),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.xs),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(s.icon, style: const TextStyle(fontSize: 26)),
-                  const SizedBox(height: AppSpacing.xs),
+                  ServiceIconBadge(serviceKey: s.key, size: 42),
+                  const SizedBox(height: AppSpacing.sm),
                   Text(
                     s.name,
                     style: AppTextStyles.caption,

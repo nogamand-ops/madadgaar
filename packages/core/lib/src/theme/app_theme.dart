@@ -73,11 +73,13 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: card,
-        elevation: 0,
+        elevation: brightness == Brightness.light ? 2 : 0,
+        shadowColor: AppColors.lightShadow,
+        surfaceTintColor: Colors.transparent,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.lg),
-          side: BorderSide(color: border, width: 1),
+          side: brightness == Brightness.dark ? BorderSide(color: border, width: 1) : BorderSide.none,
         ),
       ),
       dividerTheme: DividerThemeData(color: border, thickness: 1, space: 1),
@@ -89,7 +91,8 @@ class AppTheme {
           textStyle: AppTextStyles.button,
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.lg),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
-          elevation: 0,
+          elevation: brightness == Brightness.light ? 3 : 0,
+          shadowColor: AppColors.primary.withValues(alpha: 0.35),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -109,7 +112,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: card,
+        fillColor: brightness == Brightness.light ? AppColors.lightCardAlt : card,
         contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
@@ -131,7 +134,7 @@ class AppTheme {
         unselectedItemColor: textSecondary,
         type: BottomNavigationBarType.fixed,
         showUnselectedLabels: true,
-        elevation: 0,
+        elevation: brightness == Brightness.light ? 8 : 0,
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: card,

@@ -47,11 +47,7 @@ class VehiclesScreen extends ConsumerWidget {
               final v = vehicles[i];
               return Container(
                 padding: const EdgeInsets.all(AppSpacing.lg),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                  border: Border.all(color: Theme.of(context).dividerColor),
-                ),
+                decoration: surfaceDecoration(context),
                 child: Row(
                   children: [
                     Text(v.type.emoji, style: const TextStyle(fontSize: 28)),

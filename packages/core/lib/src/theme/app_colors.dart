@@ -24,14 +24,17 @@ class AppColors {
   static const Color darkTextSecondary = Color(0xFF94A3B8);
   static const Color darkTextMuted = Color(0xFF64748B);
 
-  // ---- Light surface ----
-  static const Color lightBg = Color(0xFFF6F8FA);
+  // ---- Light surface (the primary look for customer-facing apps — a
+  // warm-neutral, slightly green-tinted white, closer to Careem/inDrive's
+  // rider-app feel than a generic grey admin tool) ----
+  static const Color lightBg = Color(0xFFF7FAF8);
   static const Color lightCard = Color(0xFFFFFFFF);
-  static const Color lightCardAlt = Color(0xFFF1F5F9);
-  static const Color lightBorder = Color(0xFFE2E8F0);
-  static const Color lightTextPrimary = Color(0xFF0F172A);
-  static const Color lightTextSecondary = Color(0xFF475569);
-  static const Color lightTextMuted = Color(0xFF94A3B8);
+  static const Color lightCardAlt = Color(0xFFF0F5F2);
+  static const Color lightBorder = Color(0xFFE7EEEA);
+  static const Color lightTextPrimary = Color(0xFF0B1512);
+  static const Color lightTextSecondary = Color(0xFF52635C);
+  static const Color lightTextMuted = Color(0xFF8A9A93);
+  static const Color lightShadow = Color(0x14143D2B);
 
   /// One color per ServiceRequest status, used consistently across all 3 apps.
   static const Map<String, Color> statusColors = {

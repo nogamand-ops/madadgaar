@@ -21,13 +21,16 @@ class ActiveRequestCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppRadius.lg),
             border: Border.all(color: AppColors.primary.withValues(alpha: 0.5)),
+            boxShadow: Theme.of(context).brightness == Brightness.light
+                ? [BoxShadow(color: AppColors.primary.withValues(alpha: 0.12), blurRadius: 20, offset: const Offset(0, 6))]
+                : null,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Text('🚨', style: TextStyle(fontSize: 18)),
+                  const Icon(Icons.warning_amber_rounded, size: 18, color: AppColors.primary),
                   const SizedBox(width: AppSpacing.xs),
                   Text('Active Request', style: AppTextStyles.overline.copyWith(color: AppColors.primary)),
                   const Spacer(),

@@ -40,7 +40,6 @@ class RequestHistoryScreen extends ConsumerWidget {
                 return _RequestTile(
                   request: r,
                   serviceName: service?.name ?? r.serviceKey,
-                  serviceIcon: service?.icon ?? '🛠️',
                   onTap: () {
                     if (r.status.isActive) {
                       if (r.status == RequestStatus.searching || r.status == RequestStatus.requested) {
@@ -73,14 +72,12 @@ class RequestHistoryScreen extends ConsumerWidget {
 class _RequestTile extends StatelessWidget {
   final ServiceRequest request;
   final String serviceName;
-  final String serviceIcon;
   final VoidCallback onTap;
   final VoidCallback? onRequestAgain;
 
   const _RequestTile({
     required this.request,
     required this.serviceName,
-    required this.serviceIcon,
     required this.onTap,
     this.onRequestAgain,
   });
@@ -88,23 +85,20 @@ class _RequestTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Theme.of(context).colorScheme.surface,
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(AppRadius.lg),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(color: Theme.of(context).dividerColor),
-          ),
+          decoration: surfaceDecoration(context),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Text(serviceIcon, style: const TextStyle(fontSize: 22)),
+                  ServiceIconBadge(serviceKey: request.serviceKey, size: 34),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(child: Text(serviceName, style: AppTextStyles.h3)),
                   StatusBadge(request.status),

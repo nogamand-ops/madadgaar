@@ -49,11 +49,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.lg),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(AppRadius.lg),
-                    border: Border.all(color: Theme.of(context).dividerColor),
-                  ),
+                  decoration: surfaceDecoration(context),
                   child: PriceBreakdownView(breakdown: widget.request.pricing.breakdown),
                 ),
                 const SizedBox(height: AppSpacing.xl),

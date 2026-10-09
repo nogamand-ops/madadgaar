@@ -104,7 +104,6 @@ final _dashboardProvider = FutureProvider.autoDispose((ref) => ref.watch(madadga
 final _analyticsProvider = FutureProvider.autoDispose((ref) => ref.watch(madadgaarApiProvider).adminAnalytics(period: 'today'));
 final _activeRequestsProvider = FutureProvider.autoDispose((ref) => ref.watch(madadgaarApiProvider).adminRequests(status: 'active'));
 final _helpersProvider = FutureProvider.autoDispose((ref) => ref.watch(madadgaarApiProvider).listHelpers());
-final _servicesProvider = FutureProvider.autoDispose((ref) => ref.watch(madadgaarApiProvider).services());
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -115,7 +114,6 @@ class DashboardScreen extends ConsumerWidget {
     final analytics = ref.watch(_analyticsProvider);
     final activeRequests = ref.watch(_activeRequestsProvider);
     final helpers = ref.watch(_helpersProvider);
-    final services = ref.watch(_servicesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -186,7 +184,6 @@ class DashboardScreen extends ConsumerWidget {
                   if (list.isEmpty) {
                     return const EmptyStateView(icon: Icons.bolt_rounded, title: 'No active requests', message: 'New requests will show up here live.');
                   }
-                  final svc = services.value ?? const [];
                   return Column(
                     children: list
                         .map((r) => Container(
@@ -195,10 +192,10 @@ class DashboardScreen extends ConsumerWidget {
                               decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.surface,
                                 borderRadius: BorderRadius.circular(AppRadius.lg),
-                                border: Border.all(color: Theme.of(context).dividerColor),
+                                border: Border.all(color: Theme.of(context).dividerColor, width: 1.2),
                               ),
                               child: Row(children: [
-                                Text(svc.where((s) => s.key == r.serviceKey).map((s) => s.icon).firstOrNull ?? '🛠️', style: const TextStyle(fontSize: 20)),
+                                ServiceIconBadge(serviceKey: r.serviceKey, size: 34),
                                 const SizedBox(width: AppSpacing.md),
                                 Expanded(
                                   child: Column(
@@ -313,8 +310,4 @@ class _CardGrid extends StatelessWidget {
       );
     });
   }
-}
-
-extension _FirstOrNull<T> on Iterable<T> {
-  T? get firstOrNull => isEmpty ? null : first;
 }

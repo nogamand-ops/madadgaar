@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
+import '../theme/surface.dart';
 import 'initials_avatar.dart';
 import 'rating_stars.dart';
 
@@ -37,11 +38,7 @@ class HelperPreviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(dense ? AppSpacing.md : AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: Theme.of(context).dividerColor),
-      ),
+      decoration: surfaceDecoration(context),
       child: Row(
         children: [
           InitialsAvatar(name: name, size: dense ? 44 : 56),
