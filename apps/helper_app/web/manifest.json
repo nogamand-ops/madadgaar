@@ -1,11 +1,11 @@
 {
-    "name": "helper_app",
-    "short_name": "helper_app",
+    "name": "Madadgaar Helper",
+    "short_name": "Madadgaar Helper",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F7F5F2",
+    "theme_color": "#27272A",
+    "description": "Accept nearby roadside assistance jobs and earn as a verified Madadgaar.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
