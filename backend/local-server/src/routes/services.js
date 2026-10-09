@@ -11,6 +11,12 @@ router.patch('/:key', requireAuth, requireRole('admin'), (req, res) => {
   const service = store.db.services.find((s) => s.key === req.params.key);
   if (!service) return res.status(404).json({ error: 'not found' });
   if (req.body?.active != null) service.active = Boolean(req.body.active);
+  if (Array.isArray(req.body?.problemOptions)) {
+    service.problemOptions = req.body.problemOptions
+      .map((o) => String(o).trim())
+      .filter((o) => o.length > 0)
+      .slice(0, 12);
+  }
   broadcast('service.updated', service);
   res.json(service);
 });

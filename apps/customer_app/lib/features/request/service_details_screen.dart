@@ -7,18 +7,10 @@ import 'location_confirm_screen.dart';
 import 'request_flow_controller.dart';
 
 /// Quick-pick common issues per service, so most customers don't have to
-/// type anything — tap one (or write your own) and continue. This is the
-/// step that was missing for every service except fuel: before, tapping
-/// "Minor Mechanical Assistance" went straight to price with no chance to
-/// say what's actually wrong.
-const _quickOptions = {
-  'battery': ["Car won't start", 'Battery completely dead', 'Need a jump start only'],
-  'tire': ['Flat tire', 'Tire burst', 'Need spare fitted', 'Slow puncture'],
-  'mechanic': ["Engine won't start", 'Strange noise', 'Warning light on', 'Overheating'],
-  'towing': ['Accident', 'Breakdown, will not start', 'Stuck (mud/ditch)', 'Needs a flatbed'],
-  'other': <String>[],
-};
-
+/// type anything — tap one (or write your own) and continue. The options
+/// themselves are admin-configurable (MadadgaarService.problemOptions,
+/// fetched live) rather than hardcoded here, so support can tune them
+/// without an app release.
 class ServiceDetailsScreen extends ConsumerStatefulWidget {
   final String serviceKey;
   const ServiceDetailsScreen({super.key, required this.serviceKey});
@@ -40,9 +32,10 @@ class _ServiceDetailsScreenState extends ConsumerState<ServiceDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final options = _quickOptions[widget.serviceKey] ?? const [];
     final services = ref.watch(servicesProvider).value ?? const [];
-    final serviceName = services.where((s) => s.key == widget.serviceKey).map((s) => s.name).firstOrNull ?? 'Request';
+    final service = services.where((s) => s.key == widget.serviceKey).firstOrNull;
+    final options = service?.problemOptions ?? const [];
+    final serviceName = service?.name ?? 'Request';
 
     return Scaffold(
       appBar: AppBar(title: Text(serviceName)),

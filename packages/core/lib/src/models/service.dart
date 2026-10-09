@@ -5,12 +5,18 @@ class MadadgaarService {
   final String description;
   final bool active;
 
+  /// Admin-configurable quick-pick "what's wrong?" options shown before
+  /// location/price for this service (empty for fuel, which has its own
+  /// type+quantity step, and for "other").
+  final List<String> problemOptions;
+
   const MadadgaarService({
     required this.key,
     required this.name,
     required this.icon,
     required this.description,
     required this.active,
+    this.problemOptions = const [],
   });
 
   factory MadadgaarService.fromJson(Map<String, dynamic> json) => MadadgaarService(
@@ -19,6 +25,7 @@ class MadadgaarService {
         icon: json['icon'] as String,
         description: json['description'] as String? ?? '',
         active: json['active'] as bool? ?? true,
+        problemOptions: List<String>.from(json['problemOptions'] as List? ?? const []),
       );
 }
 

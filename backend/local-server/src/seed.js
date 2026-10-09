@@ -3,12 +3,40 @@ const { estimatePrice } = require('./pricing');
 const { distanceKm } = require('./lib/geo');
 
 const SERVICES = [
-  { key: 'fuel', name: 'Fuel Delivery', icon: '⛽', description: 'Petrol or diesel delivered to your location.', active: true },
-  { key: 'battery', name: 'Battery Jump-Start', icon: '🔋', description: 'Get your battery jump-started on the spot.', active: true },
-  { key: 'tire', name: 'Flat Tire Assistance', icon: '🛞', description: 'Tyre change or repair, roadside.', active: true },
-  { key: 'mechanic', name: 'Minor Mechanical Assistance', icon: '🔧', description: 'Small mechanical issues fixed on the spot.', active: true },
-  { key: 'towing', name: 'Towing', icon: '🚚', description: 'Vehicle towed to your nearest workshop.', active: true },
-  { key: 'other', name: 'Other Problem', icon: '❓', description: "Not sure what's wrong? We'll still send help.", active: true },
+  { key: 'fuel', name: 'Fuel Delivery', icon: '⛽', description: 'Petrol or diesel delivered to your location.', active: true, problemOptions: [] },
+  {
+    key: 'battery',
+    name: 'Battery Jump-Start',
+    icon: '🔋',
+    description: 'Get your battery jump-started on the spot.',
+    active: true,
+    problemOptions: ["Car won't start", 'Battery completely dead', 'Need a jump start only'],
+  },
+  {
+    key: 'tire',
+    name: 'Flat Tire Assistance',
+    icon: '🛞',
+    description: 'Tyre change or repair, roadside.',
+    active: true,
+    problemOptions: ['Flat tire', 'Tire burst', 'Need spare fitted', 'Slow puncture'],
+  },
+  {
+    key: 'mechanic',
+    name: 'Minor Mechanical Assistance',
+    icon: '🔧',
+    description: 'Small mechanical issues fixed on the spot.',
+    active: true,
+    problemOptions: ["Engine won't start", 'Strange noise', 'Warning light on', 'Overheating'],
+  },
+  {
+    key: 'towing',
+    name: 'Towing',
+    icon: '🚚',
+    description: 'Vehicle towed to your nearest workshop.',
+    active: true,
+    problemOptions: ['Accident', 'Breakdown, will not start', 'Stuck (mud/ditch)', 'Needs a flatbed'],
+  },
+  { key: 'other', name: 'Other Problem', icon: '❓', description: "Not sure what's wrong? We'll still send help.", active: true, problemOptions: [] },
 ];
 
 const DEFAULT_RULE_BY_SERVICE = {

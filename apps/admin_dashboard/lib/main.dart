@@ -105,6 +105,7 @@ final _analyticsProvider = FutureProvider.autoDispose((ref) => ref.watch(madadga
 final _activeRequestsProvider = FutureProvider.autoDispose((ref) => ref.watch(madadgaarApiProvider).adminRequests(status: 'active'));
 final _allRequestsProvider = FutureProvider.autoDispose((ref) => ref.watch(madadgaarApiProvider).adminRequests());
 final _helpersProvider = FutureProvider.autoDispose((ref) => ref.watch(madadgaarApiProvider).listHelpers());
+final _servicesProvider = FutureProvider.autoDispose((ref) => ref.watch(madadgaarApiProvider).services());
 
 final _navIndexProvider = StateProvider<int>((ref) => 0);
 
@@ -112,6 +113,7 @@ const _navItems = [
   (icon: Icons.space_dashboard_outlined, selectedIcon: Icons.space_dashboard_rounded, label: 'Dashboard'),
   (icon: Icons.receipt_long_outlined, selectedIcon: Icons.receipt_long_rounded, label: 'Requests'),
   (icon: Icons.groups_outlined, selectedIcon: Icons.groups_rounded, label: 'Helpers'),
+  (icon: Icons.build_outlined, selectedIcon: Icons.build_rounded, label: 'Services'),
 ];
 
 class DashboardScreen extends ConsumerWidget {
@@ -123,6 +125,7 @@ class DashboardScreen extends ConsumerWidget {
     ref.invalidate(_activeRequestsProvider);
     ref.invalidate(_allRequestsProvider);
     ref.invalidate(_helpersProvider);
+    ref.invalidate(_servicesProvider);
   }
 
   @override
@@ -164,7 +167,8 @@ class DashboardScreen extends ConsumerWidget {
                       child: switch (navIndex) {
                         0 => const _OverviewTab(),
                         1 => const _RequestsTab(),
-                        _ => const _HelpersTab(),
+                        2 => const _HelpersTab(),
+                        _ => const _ServicesTab(),
                       },
                     ),
                   ),
@@ -384,6 +388,134 @@ class _HelpersTab extends ConsumerWidget {
       },
       loading: () => const Padding(padding: EdgeInsets.all(AppSpacing.xl), child: LoadingView()),
       error: (e, __) => Text('$e', style: const TextStyle(color: AppColors.danger)),
+    );
+  }
+}
+
+/// Lets admin edit the quick-pick "what's wrong?" options customers see
+/// per service (service_details_screen.dart in the customer app fetches
+/// these live) — no app release needed to tune them.
+class _ServicesTab extends ConsumerWidget {
+  const _ServicesTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final servicesAsync = ref.watch(_servicesProvider);
+    return servicesAsync.when(
+      data: (list) {
+        final editable = list.where((s) => s.key != 'fuel' && s.key != 'other').toList();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('Service problem options', style: AppTextStyles.h2),
+            const SizedBox(height: 4),
+            Text(
+              'These are the quick-pick options customers see on the "What\'s wrong?" screen for each service. '
+              'Fuel (its own type/quantity step) and "Other" aren\'t editable here.',
+              style: AppTextStyles.description.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            for (final service in editable)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                child: _ServiceEditorCard(service: service),
+              ),
+          ],
+        );
+      },
+      loading: () => const Padding(padding: EdgeInsets.all(AppSpacing.xl), child: LoadingView()),
+      error: (e, __) => Text('$e', style: const TextStyle(color: AppColors.danger)),
+    );
+  }
+}
+
+class _ServiceEditorCard extends ConsumerStatefulWidget {
+  final MadadgaarService service;
+  const _ServiceEditorCard({required this.service});
+
+  @override
+  ConsumerState<_ServiceEditorCard> createState() => _ServiceEditorCardState();
+}
+
+class _ServiceEditorCardState extends ConsumerState<_ServiceEditorCard> {
+  late List<String> _options = List.of(widget.service.problemOptions);
+  final _newOptionController = TextEditingController();
+  bool _saving = false;
+
+  Future<void> _save(List<String> next) async {
+    final previous = _options;
+    setState(() {
+      _options = next;
+      _saving = true;
+    });
+    try {
+      await ref.read(madadgaarApiProvider).updateService(widget.service.key, problemOptions: next);
+    } catch (e) {
+      if (mounted) {
+        setState(() => _options = previous);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not save: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  void _addOption() {
+    final text = _newOptionController.text.trim();
+    if (text.isEmpty || _options.contains(text)) return;
+    _newOptionController.clear();
+    _save([..._options, text]);
+  }
+
+  void _removeOption(String option) => _save(_options.where((o) => o != option).toList());
+
+  @override
+  void dispose() {
+    _newOptionController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: surfaceDecoration(context),
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              ServiceIconBadge(serviceKey: widget.service.key, size: 36),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(child: Text(widget.service.name, style: AppTextStyles.h3)),
+              if (_saving) const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _options.isEmpty
+              ? Text('No quick-pick options yet — add one below.',
+                  style: AppTextStyles.caption.copyWith(color: Theme.of(context).textTheme.bodySmall?.color))
+              : Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
+                  children: _options.map((o) => Chip(label: Text(o), onDeleted: () => _removeOption(o))).toList(),
+                ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _newOptionController,
+                  decoration: const InputDecoration(hintText: 'Add an option…', isDense: true),
+                  onSubmitted: (_) => _addOption(),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              IconButton.filled(onPressed: _addOption, icon: const Icon(Icons.add_rounded)),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

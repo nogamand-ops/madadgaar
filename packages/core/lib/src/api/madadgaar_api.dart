@@ -101,6 +101,14 @@ class MadadgaarApi {
     return res.map((e) => MadadgaarService.fromJson(e as Map<String, dynamic>)).toList();
   }
 
+  /// Admin-only: update a service's active flag and/or its quick-pick
+  /// "what's wrong?" problem options.
+  Future<MadadgaarService> updateService(String key, {bool? active, List<String>? problemOptions}) async =>
+      MadadgaarService.fromJson(await client.patch('/api/services/$key', body: {
+        if (active != null) 'active': active,
+        if (problemOptions != null) 'problemOptions': problemOptions,
+      }));
+
   // ---- pricing -------------------------------------------------------------------
   Future<List<PricingRule>> pricingRules({String? cityId}) async {
     final res = await client.get('/api/pricing', query: {'cityId': cityId}) as List;
