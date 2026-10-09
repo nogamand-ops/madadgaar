@@ -232,7 +232,7 @@ class _LocationConfirmScreenState extends ConsumerState<LocationConfirmScreen> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.location_on_rounded, color: AppColors.primary, size: 20),
+                      const Icon(Icons.location_on_rounded, color: AppColors.charcoal, size: 20),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: _resolvingAddress

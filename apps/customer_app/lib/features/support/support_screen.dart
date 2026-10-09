@@ -53,7 +53,7 @@ class _Tile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       child: ListTile(
-        leading: Icon(icon, color: AppColors.primary),
+        leading: Icon(icon, color: AppColors.charcoal),
         title: Text(title, style: AppTextStyles.bodyStrong),
         subtitle: Text(subtitle, style: AppTextStyles.caption),
         onTap: onTap,

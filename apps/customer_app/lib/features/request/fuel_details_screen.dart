@@ -31,9 +31,9 @@ class _FuelDetailsScreenState extends ConsumerState<FuelDetailsScreen> {
             const SizedBox(height: AppSpacing.md),
             Row(
               children: [
-                Expanded(child: _FuelTypeCard(label: 'Petrol', emoji: '⛽', selected: _fuelType == 'petrol', onTap: () => setState(() => _fuelType = 'petrol'))),
+                Expanded(child: _FuelTypeCard(label: 'Petrol', icon: Icons.local_gas_station_rounded, selected: _fuelType == 'petrol', onTap: () => setState(() => _fuelType = 'petrol'))),
                 const SizedBox(width: AppSpacing.md),
-                Expanded(child: _FuelTypeCard(label: 'Diesel', emoji: '🛢️', selected: _fuelType == 'diesel', onTap: () => setState(() => _fuelType = 'diesel'))),
+                Expanded(child: _FuelTypeCard(label: 'Diesel', icon: Icons.water_drop_rounded, selected: _fuelType == 'diesel', onTap: () => setState(() => _fuelType = 'diesel'))),
               ],
             ),
             const SizedBox(height: AppSpacing.xxl),
@@ -66,27 +66,27 @@ class _FuelDetailsScreenState extends ConsumerState<FuelDetailsScreen> {
 
 class _FuelTypeCard extends StatelessWidget {
   final String label;
-  final String emoji;
+  final IconData icon;
   final bool selected;
   final VoidCallback onTap;
-  const _FuelTypeCard({required this.label, required this.emoji, required this.selected, required this.onTap});
+  const _FuelTypeCard({required this.label, required this.icon, required this.selected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadius.lg),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
         decoration: BoxDecoration(
-          color: selected ? AppColors.primary.withValues(alpha: 0.14) : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(color: selected ? AppColors.primary : Theme.of(context).dividerColor, width: selected ? 1.6 : 1),
+          color: selected ? AppColors.amber.withValues(alpha: 0.12) : Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          border: Border.all(color: selected ? AppColors.amber : Theme.of(context).dividerColor, width: selected ? 1.6 : 1),
         ),
         child: Column(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 30)),
+            Icon(icon, size: 26, color: selected ? AppColors.charcoal : Theme.of(context).textTheme.bodySmall?.color),
             const SizedBox(height: AppSpacing.sm),
             Text(label, style: AppTextStyles.bodyStrong),
           ],
@@ -106,19 +106,19 @@ class _QuantityChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadius.lg),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: selected ? AppColors.primary : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(color: selected ? AppColors.primary : Theme.of(context).dividerColor),
+          color: selected ? AppColors.amber : Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          border: Border.all(color: selected ? AppColors.amber : Theme.of(context).dividerColor),
         ),
         child: Text(
           '$litres L',
-          style: AppTextStyles.bodyStrong.copyWith(color: selected ? Colors.white : null),
+          style: AppTextStyles.bodyStrong.copyWith(color: selected ? AppColors.charcoalDeep : null),
         ),
       ),
     );

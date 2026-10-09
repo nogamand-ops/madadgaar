@@ -48,7 +48,7 @@ class _HelperActiveJobViewState extends ConsumerState<HelperActiveJobView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(children: [Text('Current Job', style: AppTextStyles.overline.copyWith(color: AppColors.primary)), const Spacer(), StatusBadge(request.status, forHelper: true)]),
+        Row(children: [Text('Current Job', style: AppTextStyles.overline.copyWith(color: AppColors.amberText)), const Spacer(), StatusBadge(request.status, forHelper: true)]),
         const SizedBox(height: AppSpacing.md),
         ClipRRect(
           borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -80,7 +80,7 @@ class _HelperActiveJobViewState extends ConsumerState<HelperActiveJobView> {
                   ],
                 ),
               ),
-              MoneyText(request.pricing.revenue.helperEarnings, style: AppTextStyles.bodyStrong, color: AppColors.primary),
+              MoneyText(request.pricing.revenue.helperEarnings, style: AppTextStyles.bodyStrong, color: AppColors.success),
             ],
           ),
           loading: () => const LoadingView(),

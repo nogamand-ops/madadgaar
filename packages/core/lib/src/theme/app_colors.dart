@@ -1,50 +1,68 @@
 import 'package:flutter/material.dart';
 
-/// Madadgaar's brand palette. Dark is the primary, default look (a premium
-/// emergency-service / Pakistani fintech feel); light is a fully supported
-/// second surface, not an afterthought.
+/// Madadgaar's brand palette: charcoal + amber. Warm white is the default
+/// surface everywhere (customer, helper, and admin) — charcoal is reserved
+/// for brand marks, strong text, and deliberately "dark surface" elements
+/// (the admin sidebar, a dramatic full-screen moment), never as the app's
+/// default background. Amber is the one accent, used deliberately for
+/// primary actions, selected states, and active highlights — not as a
+/// wash over the whole UI. Red is reserved for SOS and destructive actions
+/// only; it is never the home screen's primary action color.
 class AppColors {
   AppColors._();
 
-  static const Color primary = Color(0xFF10B981); // Emerald
-  static const Color primaryDark = Color(0xFF0B8F63);
-  static const Color secondary = Color(0xFF38BDF8); // Cyan
+  // ---- Brand ----
+  static const Color charcoal = Color(0xFF27272A);
+  static const Color charcoalDeep = Color(0xFF18181B);
+  static const Color amber = Color(0xFFF59E0B);
+  static const Color amberLight = Color(0xFFFBBF24);
 
-  static const Color danger = Color(0xFFEF4444);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color success = primary;
-  static const Color info = secondary;
+  // `primary` is the one accent used for buttons/selection throughout the
+  // app — kept as an alias so existing call sites read naturally.
+  static const Color primary = amber;
+  static const Color primaryDark = Color(0xFFD97E06);
+  static const Color secondary = Color(0xFF2563EB); // Information blue
 
-  // ---- Dark surface ----
-  static const Color darkBg = Color(0xFF07111A);
-  static const Color darkCard = Color(0xFF111827);
-  static const Color darkCardAlt = Color(0xFF17202E);
-  static const Color darkBorder = Color(0xFF223042);
-  static const Color darkTextPrimary = Color(0xFFF8FAFC);
-  static const Color darkTextSecondary = Color(0xFF94A3B8);
-  static const Color darkTextMuted = Color(0xFF64748B);
+  /// Amber as TEXT/ICON color on a light surface fails contrast (~2.4:1) —
+  /// use this darker variant (~4.6:1) wherever amber needs to be read as
+  /// text or a small icon rather than a filled background.
+  static const Color amberText = Color(0xFFB45309);
 
-  // ---- Light surface (the primary look for customer-facing apps — a
-  // warm-neutral, slightly green-tinted white, closer to Careem/inDrive's
-  // rider-app feel than a generic grey admin tool) ----
-  static const Color lightBg = Color(0xFFF7FAF8);
+  static const Color danger = Color(0xFFDC2626); // SOS / destructive only
+  static const Color warning = amber;
+  static const Color success = Color(0xFF15803D); // Darkened for AA text contrast on white
+  static const Color info = Color(0xFF2563EB);
+
+  // ---- Light surface (the default everywhere) ----
+  static const Color lightBg = Color(0xFFFAFAF9);
   static const Color lightCard = Color(0xFFFFFFFF);
-  static const Color lightCardAlt = Color(0xFFF0F5F2);
-  static const Color lightBorder = Color(0xFFE7EEEA);
-  static const Color lightTextPrimary = Color(0xFF0B1512);
-  static const Color lightTextSecondary = Color(0xFF52635C);
-  static const Color lightTextMuted = Color(0xFF8A9A93);
-  static const Color lightShadow = Color(0x14143D2B);
+  static const Color lightCardAlt = Color(0xFFF4F4F5);
+  static const Color lightBorder = Color(0xFFE4E4E7);
+  static const Color lightTextPrimary = Color(0xFF18181B);
+  static const Color lightTextSecondary = Color(0xFF71717A);
+  static const Color lightTextMuted = Color(0xFFA1A1AA);
+  static const Color lightShadow = Color(0x14000000);
 
-  /// One color per ServiceRequest status, used consistently across all 3 apps.
+  // ---- Dark surface (used sparingly: admin sidebar, a dramatic
+  // full-screen moment like the helper's incoming-job alert — never the
+  // app's default background) ----
+  static const Color darkBg = charcoalDeep;
+  static const Color darkCard = charcoal;
+  static const Color darkCardAlt = Color(0xFF3F3F46);
+  static const Color darkBorder = Color(0xFF3F3F46);
+  static const Color darkTextPrimary = Color(0xFFFAFAF9);
+  static const Color darkTextSecondary = Color(0xFFA1A1AA);
+  static const Color darkTextMuted = Color(0xFF71717A);
+
+  /// One color per ServiceRequest status, used consistently across the app.
   static const Map<String, Color> statusColors = {
     'REQUESTED': secondary,
     'SEARCHING': secondary,
-    'ACCEPTED': primary,
-    'HELPER_ON_THE_WAY': primary,
-    'ARRIVED': Color(0xFF22D3EE),
-    'SERVICE_STARTED': Color(0xFFA78BFA),
-    'COMPLETED': primary,
+    'ACCEPTED': amber,
+    'HELPER_ON_THE_WAY': amber,
+    'ARRIVED': secondary,
+    'SERVICE_STARTED': amber,
+    'COMPLETED': success,
     'CANCELLED': danger,
   };
 }

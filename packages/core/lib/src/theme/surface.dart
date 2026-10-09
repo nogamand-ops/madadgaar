@@ -3,10 +3,11 @@ import 'app_colors.dart';
 import 'app_spacing.dart';
 
 /// The one "card" look used everywhere instead of ad-hoc
-/// `BoxDecoration(border: ...)` blocks: soft shadow + no border on light
-/// (Careem/inDrive-style depth), subtle border + no shadow on dark (shadows
-/// don't read on dark surfaces — a lighter border does the same job).
-BoxDecoration surfaceDecoration(BuildContext context, {double radius = AppRadius.lg, bool tintedBorder = false}) {
+/// `BoxDecoration(border: ...)` blocks: a subtle 1px border plus a soft,
+/// restrained shadow on light surfaces (never a heavy outline), a subtle
+/// border with no shadow on dark surfaces (shadows don't read on dark —
+/// a lighter border does the same job).
+BoxDecoration surfaceDecoration(BuildContext context, {double radius = AppRadius.md, bool tintedBorder = false}) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   if (isDark) {
     return BoxDecoration(
@@ -18,6 +19,7 @@ BoxDecoration surfaceDecoration(BuildContext context, {double radius = AppRadius
   return BoxDecoration(
     color: Theme.of(context).colorScheme.surface,
     borderRadius: BorderRadius.circular(radius),
-    boxShadow: const [BoxShadow(color: AppColors.lightShadow, blurRadius: 18, offset: Offset(0, 6))],
+    border: Border.all(color: AppColors.lightBorder, width: 1),
+    boxShadow: const [BoxShadow(color: AppColors.lightShadow, blurRadius: 10, offset: Offset(0, 3))],
   );
 }

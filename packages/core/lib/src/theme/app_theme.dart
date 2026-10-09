@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_text_styles.dart';
 
-/// Central theme factory. Every app (customer, helper, admin) calls
-/// [AppTheme.dark] / [AppTheme.light] instead of building its own ThemeData,
-/// so the three apps stay visually identical.
+/// Central theme factory. Every screen calls [AppTheme.light] (the default,
+/// everywhere) or [AppTheme.dark] (reserved for deliberate dark surfaces —
+/// never the app's default background) instead of building its own
+/// ThemeData, so the whole product stays visually consistent.
 class AppTheme {
   AppTheme._();
+
+  static final String _interFamily = GoogleFonts.inter().fontFamily!;
 
   static ThemeData dark() => _build(
         brightness: Brightness.dark,
@@ -35,12 +39,13 @@ class AppTheme {
     required Color textPrimary,
     required Color textSecondary,
   }) {
+    final isLight = brightness == Brightness.light;
     final colorScheme = ColorScheme(
       brightness: brightness,
-      primary: AppColors.primary,
-      onPrimary: Colors.white,
+      primary: AppColors.amber,
+      onPrimary: AppColors.charcoalDeep,
       secondary: AppColors.secondary,
-      onSecondary: const Color(0xFF04202B),
+      onSecondary: Colors.white,
       error: AppColors.danger,
       onError: Colors.white,
       surface: card,
@@ -52,7 +57,7 @@ class AppTheme {
       brightness: brightness,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: bg,
-      fontFamily: AppTextStyles.fontFamily,
+      fontFamily: _interFamily,
       textTheme: TextTheme(
         displayMedium: AppTextStyles.display.copyWith(color: textPrimary),
         headlineMedium: AppTextStyles.h1.copyWith(color: textPrimary),
@@ -73,46 +78,50 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         color: card,
-        elevation: brightness == Brightness.light ? 2 : 0,
+        elevation: isLight ? 1 : 0,
         shadowColor: AppColors.lightShadow,
         surfaceTintColor: Colors.transparent,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          side: brightness == Brightness.dark ? BorderSide(color: border, width: 1) : BorderSide.none,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          side: isLight ? BorderSide(color: border, width: 1) : BorderSide(color: border, width: 1),
         ),
       ),
       dividerTheme: DividerThemeData(color: border, thickness: 1, space: 1),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.35),
+          backgroundColor: AppColors.amber,
+          foregroundColor: AppColors.charcoalDeep,
+          disabledBackgroundColor: AppColors.amber.withValues(alpha: 0.35),
+          disabledForegroundColor: AppColors.charcoalDeep.withValues(alpha: 0.5),
           textStyle: AppTextStyles.button,
+          minimumSize: const Size.fromHeight(48),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.lg),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
-          elevation: brightness == Brightness.light ? 3 : 0,
-          shadowColor: AppColors.primary.withValues(alpha: 0.35),
+          elevation: 0,
+          shadowColor: Colors.transparent,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: textPrimary,
-          side: BorderSide(color: border, width: 1.4),
+          side: BorderSide(color: border, width: 1.3),
           textStyle: AppTextStyles.button,
+          minimumSize: const Size.fromHeight(48),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.lg),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.primary,
+          foregroundColor: AppColors.charcoal,
           textStyle: AppTextStyles.button,
+          minimumSize: const Size(0, 44),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: brightness == Brightness.light ? AppColors.lightCardAlt : card,
+        fillColor: isLight ? AppColors.lightCardAlt : card,
         contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.lg),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
@@ -124,21 +133,22 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.6),
+          borderSide: const BorderSide(color: AppColors.amber, width: 1.6),
         ),
         hintStyle: AppTextStyles.body.copyWith(color: textSecondary),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: card,
-        selectedItemColor: AppColors.primary,
+        selectedItemColor: AppColors.charcoal,
         unselectedItemColor: textSecondary,
+        selectedIconTheme: const IconThemeData(color: AppColors.amber),
         type: BottomNavigationBarType.fixed,
         showUnselectedLabels: true,
-        elevation: brightness == Brightness.light ? 8 : 0,
+        elevation: isLight ? 3 : 0,
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: card,
-        contentTextStyle: AppTextStyles.body.copyWith(color: textPrimary),
+        backgroundColor: AppColors.charcoalDeep,
+        contentTextStyle: AppTextStyles.body.copyWith(color: Colors.white),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
         behavior: SnackBarBehavior.floating,
       ),
@@ -152,9 +162,9 @@ class AppTheme {
       extensions: [
         AppSurfaceColors(
           border: border,
-          cardAlt: brightness == Brightness.dark ? AppColors.darkCardAlt : AppColors.lightCardAlt,
+          cardAlt: isLight ? AppColors.lightCardAlt : AppColors.darkCardAlt,
           textSecondary: textSecondary,
-          textMuted: brightness == Brightness.dark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+          textMuted: isLight ? AppColors.lightTextMuted : AppColors.darkTextMuted,
         ),
       ],
     );

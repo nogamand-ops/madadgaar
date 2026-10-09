@@ -1,50 +1,43 @@
 import 'package:flutter/material.dart';
+import 'app_colors.dart';
 
-/// Real icon + accent color per service, replacing raw emoji everywhere in
-/// the UI. Each service gets its own tint (the way Uber/inDrive/Careem tint
-/// each ride category) so the service grid reads as designed, not as a flat
-/// list. The backend's `icon` (emoji) field stays as admin-facing metadata —
-/// this is what the apps actually render.
-class ServiceVisual {
-  final IconData icon;
-  final Color color;
-  const ServiceVisual(this.icon, this.color);
-}
-
-const Map<String, ServiceVisual> serviceVisuals = {
-  'fuel': ServiceVisual(Icons.local_gas_station_rounded, Color(0xFFF59E0B)),
-  'battery': ServiceVisual(Icons.battery_charging_full_rounded, Color(0xFF10B981)),
-  'tire': ServiceVisual(Icons.tire_repair_rounded, Color(0xFF6366F1)),
-  'mechanic': ServiceVisual(Icons.build_rounded, Color(0xFF38BDF8)),
-  'towing': ServiceVisual(Icons.local_shipping_rounded, Color(0xFFF97316)),
-  'other': ServiceVisual(Icons.help_outline_rounded, Color(0xFF94A3B8)),
+/// Real icon per service, replacing raw emoji everywhere in the UI. Every
+/// service shares the same neutral badge treatment by default — amber is
+/// reserved for the *selected* state, per the design system, so the five
+/// service options read as one calm set rather than a rainbow competing
+/// for attention.
+const Map<String, IconData> serviceIcons = {
+  'fuel': Icons.local_gas_station_rounded,
+  'battery': Icons.battery_charging_full_rounded,
+  'tire': Icons.tire_repair_rounded,
+  'mechanic': Icons.build_rounded,
+  'towing': Icons.local_shipping_rounded,
+  'other': Icons.help_outline_rounded,
 };
 
-ServiceVisual visualFor(String serviceKey) => serviceVisuals[serviceKey] ?? serviceVisuals['other']!;
+IconData iconFor(String serviceKey) => serviceIcons[serviceKey] ?? serviceIcons['other']!;
 
-/// A tinted, rounded icon badge — the single building block that replaces
-/// every bare emoji in the product.
+/// A rounded icon badge — the single building block that replaces every
+/// bare emoji in the product. Neutral by default; pass [selected] to switch
+/// to the amber "this one's active" treatment.
 class ServiceIconBadge extends StatelessWidget {
   final String serviceKey;
   final double size;
-  const ServiceIconBadge({super.key, required this.serviceKey, this.size = 44});
+  final bool selected;
+  const ServiceIconBadge({super.key, required this.serviceKey, this.size = 44, this.selected = false});
 
   @override
   Widget build(BuildContext context) {
-    final visual = visualFor(serviceKey);
+    final icon = iconFor(serviceKey);
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(size * 0.32),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [visual.color.withValues(alpha: 0.22), visual.color.withValues(alpha: 0.12)],
-        ),
+        borderRadius: BorderRadius.circular(size * 0.3),
+        color: selected ? AppColors.amber : AppColors.lightCardAlt,
       ),
       alignment: Alignment.center,
-      child: Icon(visual.icon, color: visual.color, size: size * 0.52),
+      child: Icon(icon, color: selected ? AppColors.charcoalDeep : AppColors.charcoal, size: size * 0.5),
     );
   }
 }

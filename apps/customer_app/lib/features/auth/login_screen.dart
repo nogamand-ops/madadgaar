@@ -57,16 +57,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               Row(
                 children: [
                   Container(
-                    width: 56,
-                    height: 56,
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      color: AppColors.charcoal,
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
                     ),
                     alignment: Alignment.center,
-                    child: const Text('M', style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800)),
+                    child: const Text('M', style: TextStyle(color: AppColors.amber, fontSize: 24, fontWeight: FontWeight.w800)),
                   ),
-                  const SizedBox(width: AppSpacing.lg),
+                  const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Text(_isHelper ? 'Madadgaar\nfor Helpers' : 'Madadgaar', style: AppTextStyles.display),
                   ),

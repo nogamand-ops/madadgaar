@@ -22,6 +22,10 @@ class HomeScreen extends ConsumerWidget {
     }
   }
 
+  void _startRequest(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProblemPickerScreen()));
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
@@ -42,84 +46,100 @@ class HomeScreen extends ConsumerWidget {
             padding: EdgeInsets.zero,
             children: [
               const DemoModeBanner(),
+
+              // ---- Compact header: brand mark + name + notifications ----
+              Padding(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, 0),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(color: AppColors.charcoal, borderRadius: BorderRadius.circular(9)),
+                      alignment: Alignment.center,
+                      child: const Text('M', style: TextStyle(color: AppColors.amber, fontWeight: FontWeight.w800, fontSize: 15)),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    const Text('Madadgaar', style: AppTextStyles.h3),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () => context.push('/support'),
+                      icon: const Icon(Icons.notifications_none_rounded),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
+                ),
+              ),
+
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Assalam-o-Alaikum${user != null ? ', ${user.name.split(' ').first}' : ''} 👋',
-                                  style: AppTextStyles.h2),
-                              const SizedBox(height: 2),
-                              Text(
-                                'How can we help you today?',
-                                style: AppTextStyles.body.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () => context.push('/support'),
-                          icon: const Icon(Icons.help_outline_rounded),
-                        ),
-                      ],
+                    Text(
+                      'Assalam-o-Alaikum${user != null ? ', ${user.name.split(' ').first}' : ''} 👋',
+                      style: AppTextStyles.body.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
                     ),
                     const SizedBox(height: AppSpacing.md),
+
+                    // ---- Location selector ----
                     profileAsync.when(
                       data: (profile) {
                         final loc = profile?.savedLocations.firstOrNull;
-                        return Row(
-                          children: [
-                            const Icon(Icons.location_on_rounded, size: 16, color: AppColors.primary),
-                            const SizedBox(width: AppSpacing.xs),
-                            Expanded(
-                              child: Text(
-                                loc?.label ?? 'Islamabad',
-                                style: AppTextStyles.caption.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
+                          decoration: surfaceDecoration(context),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.location_on_rounded, size: 18, color: AppColors.charcoal),
+                              const SizedBox(width: AppSpacing.sm),
+                              Expanded(
+                                child: Text(
+                                  loc?.label ?? 'Islamabad',
+                                  style: AppTextStyles.bodyStrong,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                          ],
+                              Text('Change', style: AppTextStyles.label.copyWith(color: AppColors.charcoal)),
+                            ],
+                          ),
                         );
                       },
-                      loading: () => const SizedBox(height: 16),
+                      loading: () => const SizedBox(height: 48),
                       error: (_, __) => const SizedBox.shrink(),
                     ),
+
                     const SizedBox(height: AppSpacing.xl),
+
+                    // ---- Active request, or the main "request assistance" hero ----
                     activeRequestAsync.when(
                       data: (request) {
-                        if (request == null) {
-                          return EmergencyButton(
-                            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProblemPickerScreen())),
+                        if (request != null) {
+                          return servicesAsync.maybeWhen(
+                            data: (services) => ActiveRequestCard(
+                              request: request,
+                              service: services.where((s) => s.key == request.serviceKey).firstOrNull,
+                              onTrack: () => _openTrack(context, request),
+                            ),
+                            orElse: () => ActiveRequestCard(request: request, service: null, onTrack: () => _openTrack(context, request)),
                           );
                         }
-                        return servicesAsync.maybeWhen(
-                          data: (services) => ActiveRequestCard(
-                            request: request,
-                            service: services.where((s) => s.key == request.serviceKey).firstOrNull,
-                            onTrack: () => _openTrack(context, request),
-                          ),
-                          orElse: () => ActiveRequestCard(request: request, service: null, onTrack: () => _openTrack(context, request)),
-                        );
+                        return _AssistanceHero(onRequest: () => _startRequest(context));
                       },
-                      loading: () => const SizedBox(height: 72, child: LoadingView()),
-                      error: (_, __) => EmergencyButton(
-                        onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProblemPickerScreen())),
-                      ),
+                      loading: () => const SizedBox(height: 160, child: LoadingView()),
+                      error: (_, __) => _AssistanceHero(onRequest: () => _startRequest(context)),
                     ),
+
                     const SizedBox(height: AppSpacing.xxl),
-                    const SectionHeader(title: 'Or choose a service'),
+                    const Text('What do you need?', style: AppTextStyles.h2),
+                    const SizedBox(height: AppSpacing.md),
                     servicesAsync.when(
                       data: (services) => ServiceGrid(services: services, onTap: (key) => enterServiceFlow(context, ref, key)),
                       loading: () => const Padding(padding: EdgeInsets.all(AppSpacing.xl), child: LoadingView()),
                       error: (e, __) => Text('Could not load services: $e'),
                     ),
+
                     const SizedBox(height: AppSpacing.xxl),
                     SectionHeader(
                       title: 'Trusted helpers near you',
@@ -156,6 +176,30 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// "Car trouble? Get the help you need, wherever you are." — the main
+/// assistance section. One deliberate amber action, no competing elements.
+class _AssistanceHero extends StatelessWidget {
+  final VoidCallback onRequest;
+  const _AssistanceHero({required this.onRequest});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text('Car trouble?', style: AppTextStyles.display),
+        const SizedBox(height: 4),
+        Text(
+          'Get the help you need, wherever you are.',
+          style: AppTextStyles.description.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        PrimaryButton(label: 'Request assistance', icon: Icons.build_rounded, onPressed: onRequest),
+      ],
     );
   }
 }

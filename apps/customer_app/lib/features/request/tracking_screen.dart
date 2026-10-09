@@ -169,7 +169,7 @@ class _StatusTimeline extends StatelessWidget {
                 Text(
                   _timeline[i].helperLabel,
                   style: AppTextStyles.caption.copyWith(
-                    color: i <= currentIndex ? AppColors.primary : Theme.of(context).textTheme.bodySmall?.color,
+                    color: i <= currentIndex ? AppColors.amberText : Theme.of(context).textTheme.bodySmall?.color,
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 1,

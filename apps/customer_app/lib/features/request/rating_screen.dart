@@ -49,7 +49,7 @@ class _RatingScreenState extends ConsumerState<RatingScreen> {
                   child: Column(
                     children: [
                       const Spacer(),
-                      const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 64),
+                      const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 64),
                       const SizedBox(height: AppSpacing.lg),
                       Text('Request completed', style: AppTextStyles.h1, textAlign: TextAlign.center),
                       const SizedBox(height: AppSpacing.sm),

@@ -14,9 +14,9 @@ class MadadgaarAdminApp extends StatelessWidget {
     return MaterialApp(
       title: 'Madadgaar Admin',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark(),
-      darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.dark,
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.light(),
+      themeMode: ThemeMode.light,
       home: const _Root(),
     );
   }
@@ -76,11 +76,11 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(AppRadius.md)),
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(color: AppColors.charcoal, borderRadius: BorderRadius.circular(AppRadius.sm)),
                       alignment: Alignment.center,
-                      child: const Text('M', style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800)),
+                      child: const Text('M', style: TextStyle(color: AppColors.amber, fontSize: 22, fontWeight: FontWeight.w800)),
                     ),
                     const SizedBox(width: AppSpacing.md),
                     const Text('Madadgaar Admin', style: AppTextStyles.h1),
@@ -103,163 +103,332 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
 final _dashboardProvider = FutureProvider.autoDispose((ref) => ref.watch(madadgaarApiProvider).adminDashboard());
 final _analyticsProvider = FutureProvider.autoDispose((ref) => ref.watch(madadgaarApiProvider).adminAnalytics(period: 'today'));
 final _activeRequestsProvider = FutureProvider.autoDispose((ref) => ref.watch(madadgaarApiProvider).adminRequests(status: 'active'));
+final _allRequestsProvider = FutureProvider.autoDispose((ref) => ref.watch(madadgaarApiProvider).adminRequests());
 final _helpersProvider = FutureProvider.autoDispose((ref) => ref.watch(madadgaarApiProvider).listHelpers());
+
+final _navIndexProvider = StateProvider<int>((ref) => 0);
+
+const _navItems = [
+  (icon: Icons.space_dashboard_outlined, selectedIcon: Icons.space_dashboard_rounded, label: 'Dashboard'),
+  (icon: Icons.receipt_long_outlined, selectedIcon: Icons.receipt_long_rounded, label: 'Requests'),
+  (icon: Icons.groups_outlined, selectedIcon: Icons.groups_rounded, label: 'Helpers'),
+];
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
+
+  void _refreshAll(WidgetRef ref) {
+    ref.invalidate(_dashboardProvider);
+    ref.invalidate(_analyticsProvider);
+    ref.invalidate(_activeRequestsProvider);
+    ref.invalidate(_allRequestsProvider);
+    ref.invalidate(_helpersProvider);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final navIndex = ref.watch(_navIndexProvider);
+
+    return Scaffold(
+      body: Row(
+        children: [
+          _Sidebar(
+            selectedIndex: navIndex,
+            onSelect: (i) => ref.read(_navIndexProvider.notifier).state = i,
+            onLogout: () => ref.read(authControllerProvider.notifier).logout(),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const DemoModeBanner(),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, AppSpacing.xl, AppSpacing.xxl, 0),
+                  child: Row(
+                    children: [
+                      Text(_navItems[navIndex].label, style: AppTextStyles.display),
+                      const Spacer(),
+                      IconButton(
+                        tooltip: 'Refresh',
+                        icon: const Icon(Icons.refresh_rounded),
+                        onPressed: () => _refreshAll(ref),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(AppSpacing.xxl),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1240),
+                      child: switch (navIndex) {
+                        0 => const _OverviewTab(),
+                        1 => const _RequestsTab(),
+                        _ => const _HelpersTab(),
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Fixed charcoal sidebar — the deliberate "dark surface" element that
+/// structures the admin tool, distinct from the light content area.
+class _Sidebar extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onSelect;
+  final VoidCallback onLogout;
+
+  const _Sidebar({required this.selectedIndex, required this.onSelect, required this.onLogout});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 232,
+      color: AppColors.charcoalDeep,
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl, horizontal: AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+            child: Row(
+              children: [
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: BoxDecoration(color: AppColors.amber, borderRadius: BorderRadius.circular(AppRadius.sm)),
+                  alignment: Alignment.center,
+                  child: const Text('M', style: TextStyle(color: AppColors.charcoalDeep, fontWeight: FontWeight.w800, fontSize: 16)),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                const Text('Madadgaar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xxxl),
+          for (var i = 0; i < _navItems.length; i++) ...[
+            _SidebarItem(
+              icon: selectedIndex == i ? _navItems[i].selectedIcon : _navItems[i].icon,
+              label: _navItems[i].label,
+              selected: selectedIndex == i,
+              onTap: () => onSelect(i),
+            ),
+            const SizedBox(height: 2),
+          ],
+          const Spacer(),
+          const Divider(color: Color(0xFF3F3F46), height: 1),
+          const SizedBox(height: AppSpacing.sm),
+          _SidebarItem(icon: Icons.logout_rounded, label: 'Log out', selected: false, onTap: onLogout),
+        ],
+      ),
+    );
+  }
+}
+
+class _SidebarItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _SidebarItem({required this.icon, required this.label, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? Colors.white.withValues(alpha: 0.08) : Colors.transparent,
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
+          child: Row(
+            children: [
+              Icon(icon, size: 20, color: selected ? AppColors.amber : const Color(0xFFA1A1AA)),
+              const SizedBox(width: AppSpacing.md),
+              Text(label, style: TextStyle(color: selected ? Colors.white : const Color(0xFFA1A1AA), fontWeight: selected ? FontWeight.w600 : FontWeight.w500, fontSize: 14)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OverviewTab extends ConsumerWidget {
+  const _OverviewTab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dashboard = ref.watch(_dashboardProvider);
     final analytics = ref.watch(_analyticsProvider);
-    final activeRequests = ref.watch(_activeRequestsProvider);
-    final helpers = ref.watch(_helpersProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Madadgaar Admin'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded),
-            onPressed: () {
-              ref.invalidate(_dashboardProvider);
-              ref.invalidate(_analyticsProvider);
-              ref.invalidate(_activeRequestsProvider);
-              ref.invalidate(_helpersProvider);
-            },
-          ),
-          IconButton(icon: const Icon(Icons.logout_rounded), onPressed: () => ref.read(authControllerProvider.notifier).logout()),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1100),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const DemoModeBanner(),
-              const SizedBox(height: AppSpacing.xl),
-              Text('Live Overview', style: AppTextStyles.h2),
-              const SizedBox(height: AppSpacing.md),
-              dashboard.when(
-                data: (d) => _CardGrid(cards: [
-                  _StatCardData('Active Requests', '${d.activeRequests}', Icons.bolt_rounded, AppColors.secondary),
-                  _StatCardData('Online Helpers', '${d.onlineHelpers}', Icons.person_pin_circle_rounded, AppColors.primary),
-                  _StatCardData("Today's Orders", '${d.todaysOrders}', Icons.receipt_long_rounded, AppColors.secondary),
-                  _StatCardData("Today's Revenue", formatPkr(d.todaysRevenue), Icons.payments_rounded, AppColors.primary),
-                  _StatCardData('Commission', formatPkr(d.todaysCommission), Icons.percent_rounded, AppColors.warning),
-                  _StatCardData('Completed (all time)', '${d.completedJobsAllTime}', Icons.check_circle_rounded, AppColors.primary),
-                  _StatCardData('Cancellation Rate', '${d.cancellationRatePct}%', Icons.cancel_rounded, AppColors.danger),
-                ]),
-                loading: () => const LoadingView(),
-                error: (e, __) => Text('$e', style: const TextStyle(color: AppColors.danger)),
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-              Row(children: [
-                Text('Business Metrics (Today)', style: AppTextStyles.h2),
-                const SizedBox(width: AppSpacing.sm),
-                const PillTag(label: 'DEMO DATA', color: AppColors.warning),
-              ]),
-              const SizedBox(height: AppSpacing.md),
-              analytics.when(
-                data: (a) => _CardGrid(cards: [
-                  _StatCardData('Orders', '${a.orders}', Icons.shopping_bag_rounded, AppColors.secondary),
-                  _StatCardData('GMV', formatPkr(a.gmv), Icons.trending_up_rounded, AppColors.primary),
-                  _StatCardData('Madadgaar Revenue', formatPkr(a.madadgaarRevenue), Icons.account_balance_wallet_rounded, AppColors.primary),
-                  _StatCardData('Helper Payouts', formatPkr(a.helperPayouts), Icons.payments_rounded, AppColors.secondary),
-                  _StatCardData('Avg Order Value', formatPkr(a.averageOrderValue), Icons.receipt_rounded, AppColors.secondary),
-                  _StatCardData('Avg Response Time', '${a.averageResponseTimeMin} min', Icons.timer_rounded, AppColors.secondary),
-                  _StatCardData('Completion Rate', '${a.completionRatePct}%', Icons.task_alt_rounded, AppColors.primary),
-                  _StatCardData('Take Rate', '${a.takeRatePct}%', Icons.pie_chart_rounded, AppColors.warning),
-                ]),
-                loading: () => const LoadingView(),
-                error: (e, __) => Text('$e', style: const TextStyle(color: AppColors.danger)),
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-              Text('Active Requests', style: AppTextStyles.h2),
-              const SizedBox(height: AppSpacing.md),
-              activeRequests.when(
-                data: (list) {
-                  if (list.isEmpty) {
-                    return const EmptyStateView(icon: Icons.bolt_rounded, title: 'No active requests', message: 'New requests will show up here live.');
-                  }
-                  return Column(
-                    children: list
-                        .map((r) => Container(
-                              margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-                              padding: const EdgeInsets.all(AppSpacing.lg),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surface,
-                                borderRadius: BorderRadius.circular(AppRadius.lg),
-                                border: Border.all(color: Theme.of(context).dividerColor, width: 1.2),
-                              ),
-                              child: Row(children: [
-                                ServiceIconBadge(serviceKey: r.serviceKey, size: 34),
-                                const SizedBox(width: AppSpacing.md),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(r.serviceKey, style: AppTextStyles.bodyStrong),
-                                      Text(r.pickupLocation.address ?? '', style: AppTextStyles.caption, maxLines: 1, overflow: TextOverflow.ellipsis),
-                                    ],
-                                  ),
-                                ),
-                                MoneyText(r.pricing.breakdown.total, style: AppTextStyles.bodyStrong),
-                                const SizedBox(width: AppSpacing.md),
-                                StatusBadge(r.status),
-                              ]),
-                            ))
-                        .toList(),
-                  );
-                },
-                loading: () => const LoadingView(),
-                error: (e, __) => Text('$e', style: const TextStyle(color: AppColors.danger)),
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-              Text('Helpers', style: AppTextStyles.h2),
-              const SizedBox(height: AppSpacing.md),
-              helpers.when(
-                data: (list) => Column(
-                  children: list
-                      .map((h) => Container(
-                            margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-                            padding: const EdgeInsets.all(AppSpacing.lg),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.circular(AppRadius.lg),
-                              border: Border.all(color: Theme.of(context).dividerColor),
-                            ),
-                            child: Row(children: [
-                              InitialsAvatar(name: h.name, size: 36),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(h.name, style: AppTextStyles.bodyStrong),
-                                    Text('${h.city} · ${h.rating.toStringAsFixed(1)}★ · ${h.completedJobs} jobs', style: AppTextStyles.caption),
-                                  ],
-                                ),
-                              ),
-                              PillTag(
-                                label: h.verificationStatus.label,
-                                color: h.isVerified ? AppColors.primary : (h.verificationStatus == VerificationStatus.pending ? AppColors.warning : AppColors.danger),
-                              ),
-                              const SizedBox(width: AppSpacing.sm),
-                              Container(width: 8, height: 8, decoration: BoxDecoration(shape: BoxShape.circle, color: h.isOnline ? AppColors.primary : Colors.grey)),
-                            ]),
-                          ))
-                      .toList(),
-                ),
-                loading: () => const LoadingView(),
-                error: (e, __) => Text('$e', style: const TextStyle(color: AppColors.danger)),
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-            ],
-          ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Live overview', style: AppTextStyles.h2),
+        const SizedBox(height: AppSpacing.md),
+        dashboard.when(
+          data: (d) => _CardGrid(cards: [
+            _StatCardData('Active Requests', '${d.activeRequests}', Icons.bolt_rounded, AppColors.secondary),
+            _StatCardData('Online Helpers', '${d.onlineHelpers}', Icons.person_pin_circle_rounded, AppColors.success),
+            _StatCardData("Today's Orders", '${d.todaysOrders}', Icons.receipt_long_rounded, AppColors.secondary),
+            _StatCardData("Today's Revenue", formatPkr(d.todaysRevenue), Icons.payments_rounded, AppColors.success),
+            _StatCardData('Commission', formatPkr(d.todaysCommission), Icons.percent_rounded, AppColors.amberText),
+            _StatCardData('Completed (all time)', '${d.completedJobsAllTime}', Icons.check_circle_rounded, AppColors.success),
+            _StatCardData('Cancellation Rate', '${d.cancellationRatePct}%', Icons.cancel_rounded, AppColors.danger),
+          ]),
+          loading: () => const Padding(padding: EdgeInsets.all(AppSpacing.xl), child: LoadingView()),
+          error: (e, __) => Text('$e', style: const TextStyle(color: AppColors.danger)),
         ),
+        const SizedBox(height: AppSpacing.xxl),
+        Row(children: [
+          Text('Business metrics (today)', style: AppTextStyles.h2),
+          const SizedBox(width: AppSpacing.sm),
+          const PillTag(label: 'DEMO DATA', color: AppColors.amberText),
+        ]),
+        const SizedBox(height: AppSpacing.md),
+        analytics.when(
+          data: (a) => _CardGrid(cards: [
+            _StatCardData('Orders', '${a.orders}', Icons.shopping_bag_rounded, AppColors.secondary),
+            _StatCardData('GMV', formatPkr(a.gmv), Icons.trending_up_rounded, AppColors.success),
+            _StatCardData('Madadgaar Revenue', formatPkr(a.madadgaarRevenue), Icons.account_balance_wallet_rounded, AppColors.success),
+            _StatCardData('Helper Payouts', formatPkr(a.helperPayouts), Icons.payments_rounded, AppColors.secondary),
+            _StatCardData('Avg Order Value', formatPkr(a.averageOrderValue), Icons.receipt_rounded, AppColors.secondary),
+            _StatCardData('Avg Response Time', '${a.averageResponseTimeMin} min', Icons.timer_rounded, AppColors.secondary),
+            _StatCardData('Completion Rate', '${a.completionRatePct}%', Icons.task_alt_rounded, AppColors.success),
+            _StatCardData('Take Rate', '${a.takeRatePct}%', Icons.pie_chart_rounded, AppColors.amberText),
+          ]),
+          loading: () => const Padding(padding: EdgeInsets.all(AppSpacing.xl), child: LoadingView()),
+          error: (e, __) => Text('$e', style: const TextStyle(color: AppColors.danger)),
+        ),
+      ],
+    );
+  }
+}
+
+class _RequestsTab extends ConsumerWidget {
+  const _RequestsTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final requests = ref.watch(_allRequestsProvider);
+    return requests.when(
+      data: (list) {
+        if (list.isEmpty) {
+          return const EmptyStateView(icon: Icons.receipt_long_rounded, title: 'No requests yet', message: 'Requests will show up here as customers create them.');
+        }
+        return _Table(
+          columns: const ['Request', 'Service', 'Location', 'Status', 'Price', 'Created'],
+          flexes: const [2, 2, 3, 2, 2, 2],
+          rows: list
+              .map((r) => [
+                    Text('#${r.id.substring(r.id.length - 6)}', style: AppTextStyles.bodyStrong),
+                    Row(children: [ServiceIconBadge(serviceKey: r.serviceKey, size: 26), const SizedBox(width: AppSpacing.sm), Flexible(child: Text(r.serviceKey, overflow: TextOverflow.ellipsis))]),
+                    Text(r.pickupLocation.address ?? '—', maxLines: 1, overflow: TextOverflow.ellipsis),
+                    StatusBadge(r.status),
+                    MoneyText(r.pricing.breakdown.total, style: AppTextStyles.bodyStrong),
+                    Text(relativeTime(r.createdAt), style: AppTextStyles.caption.copyWith(color: Theme.of(context).textTheme.bodySmall?.color)),
+                  ])
+              .toList(),
+        );
+      },
+      loading: () => const Padding(padding: EdgeInsets.all(AppSpacing.xl), child: LoadingView()),
+      error: (e, __) => Text('$e', style: const TextStyle(color: AppColors.danger)),
+    );
+  }
+}
+
+class _HelpersTab extends ConsumerWidget {
+  const _HelpersTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final helpers = ref.watch(_helpersProvider);
+    return helpers.when(
+      data: (list) {
+        if (list.isEmpty) {
+          return const EmptyStateView(icon: Icons.groups_rounded, title: 'No helpers yet', message: 'Registered helpers will show up here.');
+        }
+        return _Table(
+          columns: const ['Helper', 'City', 'Rating', 'Jobs', 'Verification', 'Online'],
+          flexes: const [3, 2, 2, 2, 2, 1],
+          rows: list
+              .map((h) => [
+                    Row(children: [
+                      InitialsAvatar(name: h.name, size: 28),
+                      const SizedBox(width: AppSpacing.sm),
+                      Flexible(child: Text(h.name, overflow: TextOverflow.ellipsis, style: AppTextStyles.bodyStrong)),
+                    ]),
+                    Text(h.city),
+                    Text(h.completedJobs > 0 ? '★ ${h.rating.toStringAsFixed(1)}' : '—'),
+                    Text('${h.completedJobs}'),
+                    PillTag(
+                      label: h.verificationStatus.label,
+                      color: h.isVerified
+                          ? AppColors.success
+                          : (h.verificationStatus == VerificationStatus.pending ? AppColors.amberText : AppColors.danger),
+                    ),
+                    Container(width: 9, height: 9, decoration: BoxDecoration(shape: BoxShape.circle, color: h.isOnline ? AppColors.success : const Color(0xFFD4D4D8))),
+                  ])
+              .toList(),
+        );
+      },
+      loading: () => const Padding(padding: EdgeInsets.all(AppSpacing.xl), child: LoadingView()),
+      error: (e, __) => Text('$e', style: const TextStyle(color: AppColors.danger)),
+    );
+  }
+}
+
+/// A simple, responsive "table" — a header row plus aligned data rows. Not
+/// a DataTable (which doesn't reflow well); columns are just flexed Rows,
+/// which handles narrow admin windows more gracefully.
+class _Table extends StatelessWidget {
+  final List<String> columns;
+  final List<int> flexes;
+  final List<List<Widget>> rows;
+
+  const _Table({required this.columns, required this.flexes, required this.rows});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: surfaceDecoration(context),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+            decoration: BoxDecoration(
+              color: AppColors.lightCardAlt,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.md)),
+            ),
+            child: Row(
+              children: [
+                for (var i = 0; i < columns.length; i++)
+                  Expanded(flex: flexes[i], child: Text(columns[i], style: AppTextStyles.label.copyWith(color: AppColors.lightTextSecondary))),
+              ],
+            ),
+          ),
+          for (var r = 0; r < rows.length; r++)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+              decoration: BoxDecoration(border: Border(top: BorderSide(color: AppColors.lightBorder, width: r == 0 ? 0 : 1))),
+              child: Row(
+                children: [
+                  for (var i = 0; i < rows[r].length; i++)
+                    Expanded(flex: flexes[i], child: Align(alignment: Alignment.centerLeft, child: rows[r][i])),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -285,16 +454,12 @@ class _CardGrid extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: cards.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: cols, mainAxisSpacing: AppSpacing.md, crossAxisSpacing: AppSpacing.md, childAspectRatio: 1.6),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: cols, mainAxisSpacing: AppSpacing.md, crossAxisSpacing: AppSpacing.md, childAspectRatio: 1.7),
         itemBuilder: (context, i) {
           final c = cards[i];
           return Container(
             padding: const EdgeInsets.all(AppSpacing.lg),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(AppRadius.lg),
-              border: Border.all(color: Theme.of(context).dividerColor),
-            ),
+            decoration: surfaceDecoration(context),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

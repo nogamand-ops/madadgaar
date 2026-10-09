@@ -22,11 +22,16 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Default button is amber with dark charcoal text/spinner (readable);
+    // an explicit override color (e.g. a destructive action) gets a white
+    // spinner/foreground instead.
+    final spinnerColor = color != null ? Colors.white : AppColors.charcoalDeep;
+
     final child = loading
-        ? const SizedBox(
+        ? SizedBox(
             height: 20,
             width: 20,
-            child: CircularProgressIndicator(strokeWidth: 2.4, valueColor: AlwaysStoppedAnimation(Colors.white)),
+            child: CircularProgressIndicator(strokeWidth: 2.4, valueColor: AlwaysStoppedAnimation(spinnerColor)),
           )
         : Row(
             mainAxisSize: MainAxisSize.min,
@@ -38,7 +43,7 @@ class PrimaryButton extends StatelessWidget {
 
     final button = ElevatedButton(
       onPressed: loading ? null : onPressed,
-      style: color != null ? ElevatedButton.styleFrom(backgroundColor: color) : null,
+      style: color != null ? ElevatedButton.styleFrom(backgroundColor: color, foregroundColor: Colors.white) : null,
       child: child,
     );
 
@@ -46,34 +51,34 @@ class PrimaryButton extends StatelessWidget {
   }
 }
 
+/// An SOS / emergency action — reserved for genuine SOS contexts (the SOS
+/// sheet, a cancel-active-job confirmation), never the home screen's
+/// default call to action. Red is used deliberately and only here.
 class EmergencyButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String label;
 
-  const EmergencyButton({super.key, required this.onPressed, this.label = 'I NEED HELP'});
+  const EmergencyButton({super.key, required this.onPressed, this.label = 'SOS'});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 72,
+      height: 56,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.danger,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.lg + 4)),
-          elevation: 6,
-          shadowColor: AppColors.danger.withValues(alpha: 0.45),
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.md)),
+          elevation: 0,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 26),
-            const SizedBox(width: AppSpacing.md),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 0.3),
-            ),
+            const Icon(Icons.sos_rounded, color: Colors.white, size: 20),
+            const SizedBox(width: AppSpacing.sm),
+            Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
           ],
         ),
       ),

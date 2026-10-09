@@ -22,14 +22,14 @@ class ModePickerScreen extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(AppRadius.md)),
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(color: AppColors.charcoal, borderRadius: BorderRadius.circular(AppRadius.sm)),
                     alignment: Alignment.center,
-                    child: const Text('M', style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800)),
+                    child: const Text('M', style: TextStyle(color: AppColors.amber, fontSize: 24, fontWeight: FontWeight.w800)),
                   ),
-                  const SizedBox(width: AppSpacing.lg),
-                  const Expanded(child: Text('Madadgaar', style: AppTextStyles.display)),
+                  const SizedBox(width: AppSpacing.md),
+                  const Expanded(child: Text('Madadgaar', style: AppTextStyles.h1)),
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
@@ -41,18 +41,16 @@ class ModePickerScreen extends StatelessWidget {
               Text('How would you like to continue?', style: AppTextStyles.h2, textAlign: TextAlign.center),
               const SizedBox(height: AppSpacing.xxl),
               _ModeCard(
-                emoji: '🚨',
+                icon: Icons.build_rounded,
                 title: 'I need help',
                 subtitle: 'Request roadside assistance nearby',
-                color: AppColors.primary,
                 onTap: () => context.push('/login', extra: {'role': 'customer'}),
               ),
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.md),
               _ModeCard(
-                emoji: '💼',
+                icon: Icons.work_outline_rounded,
                 title: 'I want to help & earn',
                 subtitle: 'Become a verified Madadgaar',
-                color: AppColors.secondary,
                 onTap: () => context.push('/login', extra: {'role': 'helper'}),
               ),
               const Spacer(flex: 3),
@@ -65,43 +63,32 @@ class ModePickerScreen extends StatelessWidget {
 }
 
 class _ModeCard extends StatelessWidget {
-  final String emoji;
+  final IconData icon;
   final String title;
   final String subtitle;
-  final Color color;
   final VoidCallback onTap;
 
-  const _ModeCard({required this.emoji, required this.title, required this.subtitle, required this.color, required this.onTap});
+  const _ModeCard({required this.icon, required this.title, required this.subtitle, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(AppRadius.xl),
+      borderRadius: BorderRadius.circular(AppRadius.lg),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.xl),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         child: Container(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.xl),
-            color: Theme.of(context).colorScheme.surface,
-            boxShadow: Theme.of(context).brightness == Brightness.light
-                ? [const BoxShadow(color: AppColors.lightShadow, blurRadius: 20, offset: Offset(0, 8))]
-                : null,
-            border: Theme.of(context).brightness == Brightness.dark ? Border.all(color: Theme.of(context).dividerColor) : null,
-          ),
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          decoration: surfaceDecoration(context, radius: AppRadius.lg),
           child: Row(
             children: [
               Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                  gradient: LinearGradient(colors: [color.withValues(alpha: 0.22), color.withValues(alpha: 0.1)]),
-                ),
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppRadius.sm), color: AppColors.lightCardAlt),
                 alignment: Alignment.center,
-                child: Text(emoji, style: const TextStyle(fontSize: 26)),
+                child: Icon(icon, color: AppColors.charcoal, size: 22),
               ),
               const SizedBox(width: AppSpacing.lg),
               Expanded(

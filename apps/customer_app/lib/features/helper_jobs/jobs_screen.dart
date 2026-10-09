@@ -52,7 +52,7 @@ class JobsScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(relativeTime(job.createdAt), style: AppTextStyles.caption.copyWith(color: Theme.of(context).textTheme.bodySmall?.color)),
-                          if (job.status == RequestStatus.completed) MoneyText(job.pricing.revenue.helperEarnings, style: AppTextStyles.bodyStrong, color: AppColors.primary),
+                          if (job.status == RequestStatus.completed) MoneyText(job.pricing.revenue.helperEarnings, style: AppTextStyles.bodyStrong, color: AppColors.success),
                         ],
                       ),
                     ],

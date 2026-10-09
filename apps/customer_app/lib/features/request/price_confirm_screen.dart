@@ -67,7 +67,7 @@ class _PriceConfirmScreenState extends ConsumerState<PriceConfirmScreen> {
                                 children: [
                                   Row(
                                     children: [
-                                      const Icon(Icons.location_on_rounded, size: 18, color: AppColors.primary),
+                                      const Icon(Icons.location_on_rounded, size: 18, color: AppColors.charcoal),
                                       const SizedBox(width: AppSpacing.xs),
                                       Expanded(
                                         child: Text(draft.address ?? 'Selected location',

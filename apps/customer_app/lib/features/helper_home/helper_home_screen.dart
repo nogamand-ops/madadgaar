@@ -168,7 +168,7 @@ class _WaitingForRequests extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxxl),
       child: Column(
         children: [
-          const Icon(Icons.radar_rounded, size: 48, color: AppColors.primary),
+          const Icon(Icons.radar_rounded, size: 48, color: AppColors.charcoal),
           const SizedBox(height: AppSpacing.lg),
           Text('Waiting for requests nearby…', style: AppTextStyles.h3, textAlign: TextAlign.center),
           const SizedBox(height: AppSpacing.sm),

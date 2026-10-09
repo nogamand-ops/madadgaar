@@ -30,9 +30,9 @@ class ActiveRequestCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.warning_amber_rounded, size: 18, color: AppColors.primary),
+                  const Icon(Icons.warning_amber_rounded, size: 18, color: AppColors.amberText),
                   const SizedBox(width: AppSpacing.xs),
-                  Text('Active Request', style: AppTextStyles.overline.copyWith(color: AppColors.primary)),
+                  Text('Active Request', style: AppTextStyles.overline.copyWith(color: AppColors.amberText)),
                   const Spacer(),
                   StatusBadge(request.status),
                 ],

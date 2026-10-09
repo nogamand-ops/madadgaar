@@ -126,20 +126,23 @@ class _EarnCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.secondary.withValues(alpha: 0.1),
-      borderRadius: BorderRadius.circular(AppRadius.lg),
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(color: AppColors.secondary.withValues(alpha: 0.4)),
-          ),
+          decoration: surfaceDecoration(context),
           child: Row(
             children: [
-              const Text('💼', style: TextStyle(fontSize: 28)),
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppRadius.sm), color: AppColors.lightCardAlt),
+                alignment: Alignment.center,
+                child: const Icon(Icons.work_outline_rounded, color: AppColors.charcoal, size: 22),
+              ),
               const SizedBox(width: AppSpacing.lg),
               const Expanded(
                 child: Column(
