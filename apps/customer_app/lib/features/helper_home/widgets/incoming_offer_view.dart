@@ -58,6 +58,19 @@ class IncomingOfferView extends ConsumerWidget {
                         Text('${request.distanceKm.toStringAsFixed(1)} km away', style: AppTextStyles.body),
                       ],
                     ),
+                    if ((request.details['description'] as String?)?.isNotEmpty == true) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.secondary),
+                          const SizedBox(width: AppSpacing.xs),
+                          Expanded(
+                            child: Text('"${request.details['description']}"', style: AppTextStyles.body.copyWith(fontStyle: FontStyle.italic)),
+                          ),
+                        ],
+                      ),
+                    ],
                     const Divider(height: AppSpacing.xxl),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -86,6 +86,18 @@ class _HelperActiveJobViewState extends ConsumerState<HelperActiveJobView> {
           loading: () => const LoadingView(),
           error: (_, __) => const SizedBox.shrink(),
         ),
+        if ((request.details['description'] as String?)?.isNotEmpty == true) ...[
+          const SizedBox(height: AppSpacing.sm),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(color: AppColors.lightCardAlt, borderRadius: BorderRadius.circular(AppRadius.sm)),
+            child: Text(
+              '"${request.details['description']}"',
+              style: AppTextStyles.body.copyWith(fontStyle: FontStyle.italic),
+            ),
+          ),
+        ],
         const SizedBox(height: AppSpacing.md),
         Row(
           children: [
