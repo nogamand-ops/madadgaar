@@ -11,14 +11,6 @@ final citiesProvider = FutureProvider.autoDispose<List<City>>((ref) => ref.watch
 
 final servicesProvider = FutureProvider.autoDispose<List<MadadgaarService>>((ref) => ref.watch(madadgaarApiProvider).services());
 
-final nearbyHelpersProvider = FutureProvider.family.autoDispose<List<HelperProfile>, String>(
-  (ref, cityId) async {
-    final helpers = await ref.watch(madadgaarApiProvider).listHelpers(city: cityId, verificationStatus: 'verified');
-    helpers.sort((a, b) => b.rating.compareTo(a.rating));
-    return helpers;
-  },
-);
-
 final myVehiclesProvider = FutureProvider.autoDispose<List<Vehicle>>((ref) async {
   final user = ref.watch(currentUserProvider);
   if (user == null) return [];

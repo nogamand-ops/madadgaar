@@ -78,20 +78,10 @@ class ProfileScreen extends ConsumerWidget {
         title: const Text('Earn with Madadgaar'),
         content: const Text(
           'Have a bike or car and some free time? Become a verified Madadgaar and earn '
-          'by helping stranded drivers nearby.\n\nA customer account and a helper account are '
-          'kept separate for verification reasons — log out and sign back in with "I want to '
-          'help & earn" to register as a helper.',
+          'by helping stranded drivers nearby.\n\nDownload the Madadgaar Helper app to apply '
+          '— registration takes a few minutes and your application is reviewed before you go live.',
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await ref.read(authControllerProvider.notifier).logout();
-            },
-            child: const Text('Log out now'),
-          ),
-        ],
+        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Got it'))],
       ),
     );
   }

@@ -13,7 +13,7 @@ class OtpScreen extends ConsumerStatefulWidget {
 
 class _OtpScreenState extends ConsumerState<OtpScreen> {
   final _otpController = TextEditingController(text: '1234');
-  final _nameController = TextEditingController(text: 'Ali Raza');
+  final _nameController = TextEditingController();
   bool _loading = false;
   String? _error;
 
@@ -27,11 +27,19 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       final result = await api.verifyOtp(
         phone: widget.phone,
         otp: _otpController.text.trim(),
-        role: 'customer',
+        role: 'helper',
         name: _nameController.text.trim().isEmpty ? null : _nameController.text.trim(),
       );
       await ref.read(authControllerProvider.notifier).setSession(AuthSession(token: result.token, user: result.user));
-      if (mounted) context.go('/home');
+
+      bool hasProfile = true;
+      try {
+        await api.getHelper(result.user.id);
+      } catch (_) {
+        hasProfile = false;
+      }
+      if (!mounted) return;
+      context.go(hasProfile ? '/home' : '/register');
     } catch (e) {
       setState(() => _error = e.toString());
     } finally {
@@ -51,10 +59,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
             const SizedBox(height: AppSpacing.xl),
             Text('Verify your number', style: AppTextStyles.h1),
             const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Enter the code we sent to ${widget.phone}',
-              style: AppTextStyles.body.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
-            ),
+            Text('Enter the code we sent to ${widget.phone}', style: AppTextStyles.body.copyWith(color: Theme.of(context).textTheme.bodySmall?.color)),
             const SizedBox(height: AppSpacing.xxl),
             TextField(
               controller: _otpController,
@@ -65,7 +70,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               decoration: InputDecoration(counterText: '', errorText: _error, hintText: '••••'),
             ),
             const SizedBox(height: AppSpacing.lg),
-            Text('First time on Madadgaar? What should we call you?', style: AppTextStyles.bodyStrong),
+            Text('First time as a Madadgaar helper? What should we call you?', style: AppTextStyles.bodyStrong),
             const SizedBox(height: AppSpacing.sm),
             TextField(controller: _nameController, decoration: const InputDecoration(hintText: 'Full name')),
             const SizedBox(height: AppSpacing.xl),

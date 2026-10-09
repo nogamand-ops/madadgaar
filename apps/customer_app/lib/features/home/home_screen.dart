@@ -32,14 +32,12 @@ class HomeScreen extends ConsumerWidget {
     final profileAsync = ref.watch(customerProfileProvider);
     final servicesAsync = ref.watch(servicesProvider);
     final activeRequestAsync = ref.watch(myActiveRequestProvider);
-    final helpersAsync = ref.watch(nearbyHelpersProvider('islamabad'));
 
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
             ref.invalidate(customerProfileProvider);
-            ref.invalidate(nearbyHelpersProvider);
             await ref.read(myActiveRequestProvider.notifier).refresh();
           },
           child: ListView(
@@ -138,36 +136,6 @@ class HomeScreen extends ConsumerWidget {
                       data: (services) => ServiceGrid(services: services, onTap: (key) => enterServiceFlow(context, ref, key)),
                       loading: () => const Padding(padding: EdgeInsets.all(AppSpacing.xl), child: LoadingView()),
                       error: (e, __) => Text('Could not load services: $e'),
-                    ),
-
-                    const SizedBox(height: AppSpacing.xxl),
-                    SectionHeader(
-                      title: 'Trusted helpers near you',
-                      actionLabel: 'See all',
-                      onAction: () {},
-                    ),
-                    helpersAsync.when(
-                      data: (helpers) => helpers.isEmpty
-                          ? Text('No verified helpers online right now.', style: AppTextStyles.body)
-                          : Column(
-                              children: helpers
-                                  .take(3)
-                                  .map((h) => Padding(
-                                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                                        child: HelperPreviewCard(
-                                          name: h.name,
-                                          rating: h.rating,
-                                          completedJobs: h.completedJobs,
-                                          vehicleLabel: h.vehicleLabel,
-                                          verified: h.isVerified,
-                                          highlyRated: h.isHighlyRated,
-                                          dense: true,
-                                        ),
-                                      ))
-                                  .toList(),
-                            ),
-                      loading: () => const Padding(padding: EdgeInsets.all(AppSpacing.xl), child: LoadingView()),
-                      error: (_, __) => const SizedBox.shrink(),
                     ),
                   ],
                 ),

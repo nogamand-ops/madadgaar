@@ -8,8 +8,8 @@ import '../features/helper_profile/helper_profile_screen.dart';
 
 final helperTabIndexProvider = StateProvider<int>((ref) => 0);
 
-class HelperAppShell extends ConsumerWidget {
-  const HelperAppShell({super.key});
+class AppShell extends ConsumerWidget {
+  const AppShell({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

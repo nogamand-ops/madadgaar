@@ -11,7 +11,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _controller = TextEditingController(text: '3001234567');
+  final _controller = TextEditingController(text: '3331234567');
   bool _loading = false;
   String? _error;
 
@@ -26,12 +26,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _error = null;
     });
     try {
-      final api = ref.read(madadgaarApiProvider);
-      final otp = await api.requestOtp(phone);
+      final otp = await ref.read(madadgaarApiProvider).requestOtp(phone);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Demo Mode: your verification code is $otp')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Demo Mode: your verification code is $otp')));
       context.push('/otp', extra: {'phone': phone});
     } catch (e) {
       setState(() => _error = e.toString());
@@ -49,28 +46,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Spacer(flex: 3),
+              const Spacer(flex: 2),
               Row(
                 children: [
                   Container(
                     width: 48,
                     height: 48,
-                    decoration: BoxDecoration(
-                      color: AppColors.charcoal,
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                    ),
+                    decoration: BoxDecoration(color: AppColors.charcoal, borderRadius: BorderRadius.circular(AppRadius.sm)),
                     alignment: Alignment.center,
                     child: const Text('M', style: TextStyle(color: AppColors.amber, fontSize: 24, fontWeight: FontWeight.w800)),
                   ),
                   const SizedBox(width: AppSpacing.md),
-                  const Expanded(
-                    child: Text('Madadgaar', style: AppTextStyles.display),
-                  ),
+                  const Expanded(child: Text('Madadgaar\nfor Helpers', style: AppTextStyles.display)),
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Help, when you need it.',
+                'Earn by helping people nearby.',
                 style: AppTextStyles.bodyLarge.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
               ),
               const Spacer(flex: 2),
@@ -86,19 +78,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: Center(widthFactor: 1, child: Text('🇵🇰 +92', style: AppTextStyles.bodyLarge)),
                   ),
                   prefixIconConstraints: const BoxConstraints(minWidth: 0),
-                  hintText: '300 1234567',
+                  hintText: '333 1234567',
                   errorText: _error,
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
               PrimaryButton(label: 'Continue', onPressed: _continue, loading: _loading),
-              const SizedBox(height: AppSpacing.lg),
-              Text(
-                'By continuing you agree to Madadgaar\'s Terms of Service and Privacy Policy.',
-                style: AppTextStyles.caption.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
-                textAlign: TextAlign.center,
-              ),
-              const Spacer(flex: 3),
+              const Spacer(flex: 2),
             ],
           ),
         ),
