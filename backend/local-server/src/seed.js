@@ -149,18 +149,22 @@ function buildSeed() {
     { id: 'helper_2', name: 'Muhammad Ali', phone: '+923341234567', city: 'islamabad', vehicleType: 'motorcycle', vehicleMake: 'Honda', vehicleModel: 'CD 70', vehicleReg: 'ICT-2290', services: ['fuel', 'battery', 'tire'], experienceYears: 3, verificationStatus: 'verified', availability: 'online', rating: 4.8, completedJobs: 347, cancelledJobs: 9, memberSince: '2026-01-05', locality: LOCALITIES[3], badges: ['identity_verified', 'vehicle_verified', 'highly_rated'] },
     { id: 'helper_3', name: 'Bilal Sabir', phone: '+923351234567', city: 'rawalpindi', vehicleType: 'van', vehicleMake: 'Suzuki', vehicleModel: 'Ravi', vehicleReg: 'RWP-7712', services: ['towing', 'mechanic'], experienceYears: 6, verificationStatus: 'verified', availability: 'online', rating: 4.6, completedJobs: 210, cancelledJobs: 14, memberSince: '2025-09-20', locality: LOCALITIES[6], badges: ['identity_verified', 'vehicle_verified'] },
     { id: 'helper_4', name: 'Kamran Yousaf', phone: '+923361234567', city: 'islamabad', vehicleType: 'motorcycle', vehicleMake: 'Yamaha', vehicleModel: 'YBR 125', vehicleReg: 'ICT-8834', services: ['fuel', 'tire'], experienceYears: 2, verificationStatus: 'verified', availability: 'online', rating: 4.7, completedJobs: 156, cancelledJobs: 8, memberSince: '2026-02-14', locality: LOCALITIES[3], badges: ['identity_verified', 'vehicle_verified'] },
-    { id: 'helper_5', name: 'Waqas Anjum', phone: '+923371234567', city: 'rawalpindi', vehicleType: 'truck', vehicleMake: 'Isuzu', vehicleModel: 'Pickup', vehicleReg: 'RWP-3345', services: ['towing'], experienceYears: 8, verificationStatus: 'verified', availability: 'offline', rating: 4.5, completedJobs: 98, cancelledJobs: 6, memberSince: '2025-08-02', locality: LOCALITIES[9], badges: ['identity_verified', 'vehicle_verified'] },
+    { id: 'helper_5', name: 'Waqas Anjum', phone: '+923371234567', city: 'rawalpindi', vehicleType: 'truck', vehicleMake: 'Isuzu', vehicleModel: 'Pickup', vehicleReg: 'RWP-3345', services: ['towing'], experienceYears: 8, verificationStatus: 'verified', availability: 'online', rating: 4.5, completedJobs: 98, cancelledJobs: 6, memberSince: '2025-08-02', locality: LOCALITIES[9], badges: ['identity_verified', 'vehicle_verified'] },
     { id: 'helper_6', name: 'Imran Sheikh', phone: '+923381234567', city: 'islamabad', vehicleType: 'motorcycle', vehicleMake: 'Honda', vehicleModel: 'CD 70', vehicleReg: 'ICT-5561', services: ['battery', 'tire', 'mechanic'], experienceYears: 5, verificationStatus: 'verified', availability: 'online', rating: 4.9, completedJobs: 289, cancelledJobs: 4, memberSince: '2025-07-18', locality: LOCALITIES[2], badges: ['identity_verified', 'vehicle_verified', 'highly_rated'] },
     { id: 'helper_7', name: 'Rabia Sultana', phone: '+923391234567', city: 'islamabad', vehicleType: 'car', vehicleMake: 'Suzuki', vehicleModel: 'Cultus', vehicleReg: 'ICT-9012', services: ['battery', 'mechanic'], experienceYears: 3, verificationStatus: 'verified', availability: 'offline', rating: 4.8, completedJobs: 134, cancelledJobs: 5, memberSince: '2026-01-22', locality: LOCALITIES[5], badges: ['identity_verified', 'vehicle_verified'] },
     { id: 'helper_8', name: 'Naveed Aslam', phone: '+923401234567', city: 'rawalpindi', vehicleType: 'motorcycle', vehicleMake: 'Honda', vehicleModel: 'CG 125', vehicleReg: 'RWP-6621', services: ['fuel'], experienceYears: 1, verificationStatus: 'pending', availability: 'offline', rating: 0, completedJobs: 0, cancelledJobs: 0, memberSince: '2026-09-02', locality: LOCALITIES[7], badges: [] },
     { id: 'helper_9', name: 'Adnan Malik', phone: '+923411234567', city: 'rawalpindi', vehicleType: 'motorcycle', vehicleMake: 'Honda', vehicleModel: 'CD 70', vehicleReg: 'RWP-1198', services: ['fuel', 'battery'], experienceYears: 2, verificationStatus: 'suspended', availability: 'offline', rating: 3.4, completedJobs: 41, cancelledJobs: 27, memberSince: '2025-12-30', locality: LOCALITIES[8], badges: [] },
     { id: 'helper_10', name: 'Shahid Raza', phone: '+923421234567', city: 'islamabad', vehicleType: 'car', vehicleMake: 'Suzuki', vehicleModel: 'Bolan', vehicleReg: 'ICT-3378', services: ['towing'], experienceYears: 1, verificationStatus: 'rejected', availability: 'offline', rating: 0, completedJobs: 0, cancelledJobs: 0, memberSince: '2026-08-20', locality: LOCALITIES[4], badges: [] },
+    // Towing/mechanical needs a van/pickup, not a motorcycle — seeded right next to Ali (like
+    // Ahmed) so "Minor Mechanical Assistance" and "Towing" always have in-range, free coverage
+    // for the documented demo login instead of depending on far-away/offline helpers.
+    { id: 'helper_11', name: 'Tariq Mehmood', phone: '+923431234567', city: 'islamabad', vehicleType: 'van', vehicleMake: 'Suzuki', vehicleModel: 'Ravi', vehicleReg: 'ICT-6647', services: ['mechanic', 'towing'], experienceYears: 7, verificationStatus: 'verified', availability: 'online', rating: 4.8, completedJobs: 231, cancelledJobs: 5, memberSince: '2025-06-10', locality: LOCALITIES[0], nearAli: true, nearAliOffset: { lat: 0.009, lng: -0.007 }, badges: ['identity_verified', 'vehicle_verified', 'highly_rated'] },
   ];
 
   helperSeeds.forEach((h) => {
     users.push({ id: h.id, phone: h.phone, name: h.name, role: 'helper', photoUrl: null, createdAt: `${h.memberSince}T09:00:00.000Z` });
     const base = h.nearAli
-      ? { lat: aliLocation.lat + 0.012, lng: aliLocation.lng + 0.013 }
+      ? { lat: aliLocation.lat + (h.nearAliOffset?.lat ?? 0.012), lng: aliLocation.lng + (h.nearAliOffset?.lng ?? 0.013) }
       : jitter(rng, h.locality);
     helperProfiles.push({
       id: h.id,
@@ -283,10 +287,13 @@ function buildSeed() {
 
   // ---- A few live/active requests (not involving Ali/Ahmed, so the judge's
   // own demo run starts clean) --------------------------------------------
+  // Deliberately kept off helper_1 (Ahmed), helper_6 (Imran) and helper_11 (Tariq) — those are
+  // the near-Ali demo coverage for battery/tire/mechanic/towing and must stay free/online so a
+  // live demo request never dead-ends into "no Madadgaars available nearby" (see matching.js).
   const activeSeeds = [
-    { customerIdx: 3, service: 'battery', helperId: 'helper_6', status: 'HELPER_ON_THE_WAY' },
+    { customerIdx: 3, service: 'battery', helperId: 'helper_2', status: 'HELPER_ON_THE_WAY' },
     { customerIdx: 5, service: 'tire', helperId: 'helper_4', status: 'ARRIVED' },
-    { customerIdx: 7, service: 'towing', helperId: 'helper_3', status: 'ACCEPTED' },
+    { customerIdx: 7, service: 'towing', helperId: 'helper_5', status: 'ACCEPTED' },
   ];
   activeSeeds.forEach((a, i) => {
     const customer = customerProfiles[a.customerIdx];

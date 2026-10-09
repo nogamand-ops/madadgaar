@@ -40,7 +40,7 @@ class HelperHomeScreen extends ConsumerWidget {
                     profileAsync.when(
                       data: (profile) => profile == null
                           ? const SizedBox.shrink()
-                          : _HelperHeader(profile: profile),
+                          : _HelperHeader(profile: profile, hasActiveJob: activeJobAsync.value != null),
                       loading: () => const LoadingView(),
                       error: (e, __) => Text('$e'),
                     ),
@@ -81,7 +81,8 @@ class HelperHomeScreen extends ConsumerWidget {
 
 class _HelperHeader extends ConsumerWidget {
   final HelperProfile profile;
-  const _HelperHeader({required this.profile});
+  final bool hasActiveJob;
+  const _HelperHeader({required this.profile, required this.hasActiveJob});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -118,18 +119,30 @@ class _HelperHeader extends ConsumerWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(isOnline ? 'You are online' : 'You are offline', style: AppTextStyles.bodyStrong),
+                  child: Text(
+                    hasActiveJob ? 'Online — on a job' : (isOnline ? 'You are online' : 'You are offline'),
+                    style: AppTextStyles.bodyStrong,
+                  ),
                 ),
                 Switch(
                   value: isOnline,
                   activeColor: AppColors.primary,
-                  onChanged: (value) async {
-                    await ref.read(madadgaarApiProvider).updateHelper(profile.id, {'availability': value ? 'online' : 'offline'});
-                    ref.invalidate(helperProfileProvider);
-                  },
+                  onChanged: hasActiveJob
+                      ? null
+                      : (value) async {
+                          await ref.read(madadgaarApiProvider).updateHelper(profile.id, {'availability': value ? 'online' : 'offline'});
+                          ref.invalidate(helperProfileProvider);
+                        },
                 ),
               ],
             ),
+            if (hasActiveJob) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                "You can't go offline until your current job is complete.",
+                style: AppTextStyles.caption.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
+              ),
+            ],
           ],
         ],
       ),

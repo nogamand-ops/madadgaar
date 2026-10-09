@@ -18,12 +18,17 @@ function reliabilityScore(helper) {
 }
 
 function isEligible(helper, request) {
+  // "Other Problem" has no corresponding skill a helper can list, so it's eligible to anyone
+  // capable rather than requiring a servicesOffered match that could never exist.
+  const capable =
+    request.serviceKey === 'other' ||
+    (Array.isArray(helper.servicesOffered) && helper.servicesOffered.includes(request.serviceKey));
+
   return (
     helper.verificationStatus === 'verified' &&
     helper.availability === 'online' &&
-    (helper.activeRequestId == null) &&
-    Array.isArray(helper.servicesOffered) &&
-    helper.servicesOffered.includes(request.serviceKey)
+    helper.activeRequestId == null &&
+    capable
   );
 }
 

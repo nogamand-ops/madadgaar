@@ -27,6 +27,13 @@ test('unverified, offline, busy, or incapable helpers are excluded', () => {
   assert.equal(isEligible(helper(), request), true);
 });
 
+test('"Other Problem" requests are eligible to any capable helper, regardless of servicesOffered', () => {
+  const otherRequest = { ...request, serviceKey: 'other' };
+  assert.equal(isEligible(helper({ servicesOffered: ['towing'] }), otherRequest), true);
+  assert.equal(isEligible(helper({ servicesOffered: [] }), otherRequest), true);
+  assert.equal(isEligible(helper({ availability: 'offline', servicesOffered: ['towing'] }), otherRequest), false);
+});
+
 test('closer, higher-rated helpers rank first', () => {
   const near = helper({ id: 'near', currentLocation: { lat: 33.701, lng: 73.051 }, rating: 4.9 });
   const far = helper({ id: 'far', currentLocation: { lat: 33.75, lng: 73.1 }, rating: 4.9 });

@@ -81,6 +81,9 @@ router.patch('/:id', requireAuth, (req, res) => {
   if (req.user.id !== helper.id && req.user.role !== 'admin') return res.status(403).json({ error: 'forbidden' });
 
   const { availability, currentLocation, servicesOffered, experienceYears, vehicleType, vehicleMake, vehicleModel, vehicleReg } = req.body || {};
+  if (availability === 'offline' && helper.activeRequestId) {
+    return res.status(409).json({ error: 'cannot go offline with an active job in progress' });
+  }
   if (availability && ['online', 'offline'].includes(availability)) helper.availability = availability;
   if (currentLocation?.lat != null && currentLocation?.lng != null) helper.currentLocation = { lat: currentLocation.lat, lng: currentLocation.lng };
   if (Array.isArray(servicesOffered)) helper.servicesOffered = servicesOffered;

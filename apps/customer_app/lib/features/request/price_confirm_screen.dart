@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:madadgaar_core/madadgaar_core.dart';
 
+import '../home/active_request_controller.dart';
 import 'request_flow_controller.dart';
 import 'searching_screen.dart';
+import 'tracking_screen.dart';
 
 class PriceConfirmScreen extends ConsumerStatefulWidget {
   const PriceConfirmScreen({super.key});
@@ -28,6 +30,16 @@ class _PriceConfirmScreenState extends ConsumerState<PriceConfirmScreen> {
       ref.read(requestFlowProvider.notifier).reset();
       if (!mounted) return;
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => SearchingScreen(requestId: request.id)));
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      // 409 means the customer already has an active request (e.g. a double tap, or they
+      // backgrounded the app mid-flow and came back) — send them to it instead of showing a
+      // raw server error with no way forward.
+      if (e.statusCode == 409) {
+        await _goToExistingActiveRequest();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not send your request: $e')));
@@ -35,6 +47,24 @@ class _PriceConfirmScreenState extends ConsumerState<PriceConfirmScreen> {
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
+  }
+
+  Future<void> _goToExistingActiveRequest() async {
+    await ref.read(myActiveRequestProvider.notifier).refresh();
+    final existing = ref.read(myActiveRequestProvider).value;
+    if (!mounted) return;
+    if (existing == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('You already have a request in progress.')));
+      return;
+    }
+    ref.read(requestFlowProvider.notifier).reset();
+    final isSearching = existing.status == RequestStatus.searching || existing.status == RequestStatus.requested;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => isSearching ? SearchingScreen(requestId: existing.id) : TrackingScreen(requestId: existing.id),
+      ),
+      (route) => route.isFirst,
+    );
   }
 
   @override

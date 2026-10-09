@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:madadgaar_core/madadgaar_core.dart';
 
+import '../support/support_screen.dart';
 import 'tracking_screen.dart';
 
 const _searchingStages = [
@@ -76,7 +77,7 @@ class _SearchingScreenState extends ConsumerState<SearchingScreen> {
                     title: 'No Madadgaars available nearby right now',
                     message: 'Try again in a moment, or contact support if this keeps happening.',
                     onRetry: _retry,
-                    onContactSupport: () => Navigator.of(context).pop(),
+                    onContactSupport: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SupportScreen())),
                   )
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
