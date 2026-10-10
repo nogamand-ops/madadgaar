@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: madadgaar-backend
+    runtime: node
+    rootDir: backend/local-server
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    healthCheckPath: /api/health

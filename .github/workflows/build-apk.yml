@@ -1,0 +1,35 @@
+name: Build Madadgaar APKs
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: "Backend URL to bake into both apps (e.g. https://madadgaar-backend.onrender.com)"
+        required: true
+        default: "http://localhost:4000"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [customer_app, helper_app]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: flutter pub get
+        working-directory: apps/${{ matrix.app }}
+        run: flutter pub get
+
+      - name: Build release APK
+        working-directory: apps/${{ matrix.app }}
+        run: flutter build apk --release --dart-define=API_BASE_URL=${{ inputs.api_base_url }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app }}-apk
+          path: apps/${{ matrix.app }}/build/app/outputs/flutter-apk/app-release.apk
