@@ -131,51 +131,84 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final navIndex = ref.watch(_navIndexProvider);
+    final compact = MediaQuery.sizeOf(context).width < 900;
+    final gutter = compact ? AppSpacing.lg : AppSpacing.xxl;
+
+    Widget sidebar({required bool inDrawer}) => _Sidebar(
+          selectedIndex: navIndex,
+          width: inDrawer ? double.infinity : 232,
+          onSelect: (i) {
+            ref.read(_navIndexProvider.notifier).state = i;
+            if (inDrawer) Navigator.of(context).pop();
+          },
+          onLogout: () => ref.read(authControllerProvider.notifier).logout(),
+        );
+
+    final content = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const DemoModeBanner(),
+        Padding(
+          padding: EdgeInsets.fromLTRB(compact ? AppSpacing.sm : gutter, AppSpacing.xl, gutter, 0),
+          child: Row(
+            children: [
+              if (compact)
+                Builder(
+                  builder: (context) => IconButton(
+                    tooltip: 'Menu',
+                    icon: const Icon(Icons.menu_rounded),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                  ),
+                ),
+              Expanded(
+                child: Text(
+                  _navItems[navIndex].label,
+                  style: compact ? AppTextStyles.h1 : AppTextStyles.display,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              IconButton(
+                tooltip: 'Refresh',
+                icon: const Icon(Icons.refresh_rounded),
+                onPressed: () => _refreshAll(ref),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(gutter),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1240),
+              child: switch (navIndex) {
+                0 => const _OverviewTab(),
+                1 => const _RequestsTab(),
+                2 => const _HelpersTab(),
+                _ => const _ServicesTab(),
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+
+    if (compact) {
+      return Scaffold(
+        drawer: Drawer(
+          width: 260,
+          backgroundColor: AppColors.charcoalDeep,
+          shape: const RoundedRectangleBorder(),
+          child: SafeArea(child: sidebar(inDrawer: true)),
+        ),
+        body: SafeArea(child: content),
+      );
+    }
 
     return Scaffold(
       body: Row(
         children: [
-          _Sidebar(
-            selectedIndex: navIndex,
-            onSelect: (i) => ref.read(_navIndexProvider.notifier).state = i,
-            onLogout: () => ref.read(authControllerProvider.notifier).logout(),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const DemoModeBanner(),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, AppSpacing.xl, AppSpacing.xxl, 0),
-                  child: Row(
-                    children: [
-                      Text(_navItems[navIndex].label, style: AppTextStyles.display),
-                      const Spacer(),
-                      IconButton(
-                        tooltip: 'Refresh',
-                        icon: const Icon(Icons.refresh_rounded),
-                        onPressed: () => _refreshAll(ref),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(AppSpacing.xxl),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1240),
-                      child: switch (navIndex) {
-                        0 => const _OverviewTab(),
-                        1 => const _RequestsTab(),
-                        2 => const _HelpersTab(),
-                        _ => const _ServicesTab(),
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          sidebar(inDrawer: false),
+          Expanded(child: content),
         ],
       ),
     );
@@ -186,15 +219,16 @@ class DashboardScreen extends ConsumerWidget {
 /// structures the admin tool, distinct from the light content area.
 class _Sidebar extends StatelessWidget {
   final int selectedIndex;
+  final double width;
   final ValueChanged<int> onSelect;
   final VoidCallback onLogout;
 
-  const _Sidebar({required this.selectedIndex, required this.onSelect, required this.onLogout});
+  const _Sidebar({required this.selectedIndex, required this.width, required this.onSelect, required this.onLogout});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 232,
+      width: width,
       color: AppColors.charcoalDeep,
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl, horizontal: AppSpacing.md),
       child: Column(
@@ -294,11 +328,15 @@ class _OverviewTab extends ConsumerWidget {
           error: (e, __) => Text('$e', style: const TextStyle(color: AppColors.danger)),
         ),
         const SizedBox(height: AppSpacing.xxl),
-        Row(children: [
-          Text('Business metrics (today)', style: AppTextStyles.h2),
-          const SizedBox(width: AppSpacing.sm),
-          const PillTag(label: 'DEMO DATA', color: AppColors.amberText),
-        ]),
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.xs,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text('Business metrics (today)', style: AppTextStyles.h2),
+            const PillTag(label: 'DEMO DATA', color: AppColors.amberText),
+          ],
+        ),
         const SizedBox(height: AppSpacing.md),
         analytics.when(
           data: (a) => _CardGrid(cards: [
@@ -530,8 +568,21 @@ class _Table extends StatelessWidget {
 
   const _Table({required this.columns, required this.flexes, required this.rows});
 
+  static const _minWidth = 720.0;
+
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final table = _buildTable(context);
+      if (constraints.maxWidth >= _minWidth) return table;
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(width: _minWidth, child: table),
+      );
+    });
+  }
+
+  Widget _buildTable(BuildContext context) {
     return Container(
       decoration: surfaceDecoration(context),
       child: Column(
@@ -586,7 +637,12 @@ class _CardGrid extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: cards.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: cols, mainAxisSpacing: AppSpacing.md, crossAxisSpacing: AppSpacing.md, childAspectRatio: 1.7),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: cols,
+          mainAxisSpacing: AppSpacing.md,
+          crossAxisSpacing: AppSpacing.md,
+          childAspectRatio: cols == 2 ? 1.45 : 1.7,
+        ),
         itemBuilder: (context, i) {
           final c = cards[i];
           return Container(
@@ -599,7 +655,12 @@ class _CardGrid extends StatelessWidget {
                 const Spacer(),
                 Text(c.value, style: AppTextStyles.h2, maxLines: 1, overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 2),
-                Text(c.label, style: AppTextStyles.caption.copyWith(color: Theme.of(context).textTheme.bodySmall?.color)),
+                Text(
+                  c.label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.caption.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
+                ),
               ],
             ),
           );
