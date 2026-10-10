@@ -5,7 +5,6 @@ const path = require('path');
 const APPS = [
   { name: 'Customer app', dir: 'customer', port: 5173 },
   { name: 'Helper app', dir: 'helper', port: 5174 },
-  { name: 'Admin dashboard', dir: 'admin', port: 5175 },
 ];
 
 const MIME = {

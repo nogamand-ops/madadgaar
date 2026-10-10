@@ -70,13 +70,13 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.hourglass_top_rounded, size: 64, color: AppColors.warning),
+                const Icon(Icons.verified_rounded, size: 64, color: AppColors.success),
                 const SizedBox(height: AppSpacing.lg),
-                Text('Application submitted', style: AppTextStyles.h1, textAlign: TextAlign.center),
+                Text("You're a Madadgaar!", style: AppTextStyles.h1, textAlign: TextAlign.center),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'Your application is under review. This usually means an identity and vehicle check '
-                  'before you can go online and receive requests.',
+                  'Your identity and vehicle check is complete (simulated in Demo Mode). '
+                  'Go online from the home screen to start receiving nearby requests.',
                   style: AppTextStyles.body.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
                   textAlign: TextAlign.center,
                 ),

@@ -214,7 +214,7 @@ class _VerificationNotice extends StatelessWidget {
           const SizedBox(width: AppSpacing.md),
           const Expanded(
             child: Text(
-              'Your account is not verified yet, so you cannot go online. We will notify you once your application is reviewed.',
+              'Your account is not active right now, so you cannot go online. Please contact Madadgaar support.',
               style: AppTextStyles.body,
             ),
           ),
