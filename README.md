@@ -40,56 +40,44 @@ Madadgaar has **4 pieces**:
 
 The phones need to **talk to the laptop**, so **the laptop and both phones must be on the same WiFi**. The easiest way is to turn on a **hotspot on one phone** and connect the laptop and the other phone to it. It works even with no internet.
 
-### Part 1: Set up the laptop (do this once)
+### Part 1: Download the project (do this once)
 
-1. **Install Node.js.** Go to **https://nodejs.org**, click the big **LTS** button, open the downloaded file, and click **Next** until it finishes.
-2. **Install Git.** Go to **https://git-scm.com/downloads**, download it for Windows, open it, and click **Next** until it finishes.
-3. **Open Command Prompt.** Press the **Windows key**, type `cmd`, and press **Enter**. A black window opens. You type all the commands below into this window and press **Enter** after each one.
-4. **Download the project:**
-   ```
-   git clone https://github.com/nogamand-ops/madadgaar.git
-   ```
-   (If it asks you to log in, use the GitHub account that has access to the project.)
-5. **Go into the backend folder:**
-   ```
-   cd madadgaar\backend\local-server
-   ```
-6. **Install the backend's parts** (first time only, takes about a minute):
-   ```
-   npm install
-   ```
+1. Go to **https://github.com/nogamand-ops/madadgaar** (log in to GitHub first if the project is private).
+2. Click the green **Code** button, then **Download ZIP**.
+3. Open your **Downloads** folder, right-click `madadgaar-master.zip`, and choose **Extract All** → **Extract**.
+4. You now have a folder called `madadgaar-master`. That's the whole project.
 
-### Part 2: Start the backend (every time you demo)
+You **don't** need to install anything by hand. The start file does it for you.
 
-1. Open Command Prompt and go to the backend folder:
-   ```
-   cd madadgaar\backend\local-server
-   ```
-2. Start it:
-   ```
-   npm start
-   ```
-3. You should see: `Madadgaar local demo server listening on http://localhost:4000`
-4. **Leave this window open.** If you close it, the apps stop working.
-5. If Windows shows a **firewall popup**, tick **both boxes** and click **Allow access**. If you click Cancel by mistake, the phones won't be able to connect.
+### Part 2: Start everything (every time you demo)
 
-Every time the backend restarts, the demo data resets to a fresh start. That's normal.
+1. Connect the laptop to the **hotspot** the phones will use. **The very first time, it needs internet** to download Node.js and the backend's parts.
+2. Open the `madadgaar-master` folder and **double-click `start-demo.bat`**.
+   - If Windows shows a blue **"Windows protected your PC"** box, click **More info** → **Run anyway**.
+3. **First time only:** if Node.js isn't installed, it installs it automatically. If Windows asks *"Do you want to allow this app to make changes?"*, click **Yes**. If the automatic install fails, the Node.js website opens: click the big **LTS** button, install it, then double-click `start-demo.bat` again.
+4. Your browser opens **all three apps** by itself:
+   - Customer app: http://localhost:5173
+   - Helper app: http://localhost:5174
+   - Admin dashboard: http://localhost:5175
+5. The black window shows **the laptop's address for the phones**, like `http://192.168.43.25:4000`. Write it down; you need it in Part 3 and Part 4.
+6. **Leave both black windows open.** If you close them, the apps stop working.
+7. If Windows shows a **firewall popup**, tick **both boxes** and click **Allow access**. If you click Cancel by mistake, the phones won't be able to connect.
 
-### Part 3: Find the laptop's address
+Every time you restart it, the demo data resets to a fresh start. That's normal.
 
-The phones need to know where the laptop is, like a house address.
+To see the apps at phone size on the laptop: press **F12**, then **Ctrl + Shift + M**, and pick a phone at the top.
 
-1. Connect the laptop to the **same WiFi or hotspot** the phones will use.
-2. Open a **second** Command Prompt window (keep the backend one running) and type:
-   ```
-   ipconfig
-   ```
-3. Look for the section for your WiFi (**Wireless LAN adapter Wi-Fi**) and find the line **IPv4 Address**. It looks like `192.168.43.25`.
-4. Your laptop's full address is that number plus `:4000`, for example:
+### Part 3: Check the laptop's address
+
+The phones need to know where the laptop is, like a house address. `start-demo.bat` shows it when it starts.
+
+1. If it shows **more than one** address, use the one that starts like your hotspot's (often `192.168.`). If you're not sure, test each one with step 4.
+2. You can also find it yourself: open Command Prompt, type `ipconfig`, and look for **IPv4 Address** under **Wireless LAN adapter Wi-Fi**.
+3. Your laptop's full address is that number plus `:4000`, for example:
    ```
    http://192.168.43.25:4000
    ```
-5. **Check it:** on a phone connected to the same WiFi, open Chrome and go to `http://192.168.43.25:4000/api/health` (using your own number). If you see `{"ok":true,...}`, the phone can reach the laptop. 🎉
+4. **Check it:** on a phone connected to the same WiFi, open Chrome and go to `http://192.168.43.25:4000/api/health` (using your own number). If you see `{"ok":true,...}`, the phone can reach the laptop. 🎉
 
 **Important:** the address can change if you join a **different** WiFi. Use the **same hotspot** tonight and at the event so it stays the same.
 
@@ -133,9 +121,11 @@ If the laptop's address changes, run this again with the new address and reinsta
 |---|---|
 | App says it can't connect | Is the backend window still open? Are both phones on the **same** hotspot as the laptop? |
 | Phone's Chrome can't open `.../api/health` | The firewall is blocking it. Windows Settings → **Windows Security** → **Firewall** → **Allow an app through firewall** → tick **Node.js** for both Private and Public. |
-| `npm` or `git` is "not recognized" | Close Command Prompt, open it again. If it still fails, reinstall Node.js or Git. |
+| Browser says "can't reach this page" for an app | Wait 5 seconds and refresh. Check the second black window ("Madadgaar Apps") is still open. |
+| Black window says "address already in use" | It's already running in another window. Close all black windows and start again. |
+| It keeps saying Node.js isn't installed | Restart the laptop once, then double-click `start-demo.bat` again. |
 | No helper accepts the job | On Phone 2, check the helper is **online**. Wait for the next offer. |
-| Things look stuck or weird | Close the backend window, run `npm start` again, and log in again on both phones. |
+| Things look stuck or weird | Close both black windows, double-click `start-demo.bat` again, and log in again on both phones. |
 
 ## Running it (developers)
 
