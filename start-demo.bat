@@ -32,6 +32,9 @@ if not exist "backend\local-server\node_modules" (
 )
 
 :launch
+echo Closing any old Madadgaar windows that are still running...
+for %%p in (4000 5173 5174 5175) do for /f "tokens=5" %%i in ('netstat -ano ^| findstr LISTENING ^| findstr /c:":%%p "') do taskkill /F /PID %%i >nul 2>nul
+ping -n 2 127.0.0.1 >nul
 start "Madadgaar Apps" cmd /k node "%~dp0demo-web\serve-apps.js"
 ping -n 4 127.0.0.1 >nul
 start "" http://localhost:5173
