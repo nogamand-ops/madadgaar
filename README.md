@@ -22,7 +22,7 @@ They're kept as three distinct apps rather than one app with a role picker: a cu
 | `packages/core` | **Done.** Shared design system, domain models, API/realtime client, live-request state, reusable widgets. `flutter analyze`: 0 issues. |
 | `apps/customer_app` | **Done — verified live in Chrome.** Login/OTP → home, emergency request flow (service → "what's wrong?" → location → price → live match/tracking), chat, payment, rating, cancellation, SOS, vehicles, history, profile. `flutter analyze`: 0 issues. |
 | `apps/helper_app` | **Done — verified live in Chrome.** Login/OTP → registration (first time) → online/offline, live incoming-job offers with countdown, active-job flow (arrived → start → complete), earnings + simulated withdraw, jobs history, profile. `flutter analyze`: 0 issues. |
-| `apps/admin_dashboard` | **Scoped-down but real and working.** Dashboard (demo admin login) showing live cards (active requests, online helpers, today's orders/revenue/commission, completed jobs, cancellation rate), a business-metrics/unit-economics section (GMV, Madadgaar revenue, helper payouts, AOV, response time, completion/cancellation/take rate — labeled DEMO DATA), a live active-requests list, a helpers table, and a Services tab to edit each service's quick-pick problem options live. The live map, pricing-editing panel, city management and disputes tables from the original plan were cut for time. `flutter analyze`: 0 issues. |
+| `apps/admin_dashboard` | **Scoped-down but real and working.** Dashboard (demo admin login) showing live cards (active requests, online helpers, today's orders/revenue/commission, completed jobs, cancellation rate), a business-metrics/unit-economics section (GMV, Madadgaar revenue, helper payouts, AOV, response time, completion/cancellation/take rate — labeled DEMO DATA), a live active-requests list, a helpers table, and a Services tab to edit each service's quick-pick problem options live. Admin actions: approve/reject new helpers (with a "waiting for approval" alert), suspend/reactivate helpers, and cancel a stuck request (both parties notified). Everything refreshes live over the WebSocket, and the layout works at phone width (sidebar becomes a drawer). The live map, pricing-editing panel, city management and disputes tables from the original plan were cut for time. `flutter analyze`: 0 issues. |
 | `backend/supabase` | **Not built.** The production-target Postgres schema/RLS described in the plan was not written in the time available. |
 
 Verified live, in the same running backend: a request created in `customer_app` is offered to, and acceptable from, `helper_app` running as a separate app/window, and shows up live on `admin_dashboard` in a third — no manual refresh needed anywhere.
@@ -114,6 +114,17 @@ If the laptop's address changes, run this again with the new address and reinsta
 5. On Phone 1, pick a problem (for example **Flat tire**) and request help.
 6. On Phone 2, a job pops up. Tap **Accept** within 15 seconds.
 7. Watch Phone 1 update live: helper on the way → arrived → done → rate.
+
+**Show the admin side (on the laptop, http://localhost:5175):**
+
+8. Tap **Continue as Admin (Demo)**. Point out that the numbers and the **Requests** list update **by themselves** while the phones are used. Nobody refreshes anything.
+9. The yellow bar says **"1 new helper is waiting for approval"**. Tap **Review**. This shows that helpers are checked by Madadgaar before they can take jobs.
+10. On **Naveed Aslam**, tap **Details** to show his vehicle and services, then tap **Approve**. He moves to **Verified**.
+11. Tap any helper and show **Suspend helper**. That's how Madadgaar removes someone after complaints.
+12. Go to **Requests**, tap an active request, and show **Cancel this request**. That's how support steps in when a job gets stuck. Both the customer and the helper are told.
+13. Go to **Services** and add a new problem option (for example "Engine overheating"). It appears in the customer app's **"What's wrong?"** list straight away.
+
+Restarting `start-demo.bat` puts everything back to the start (Naveed is pending again), so you can practise as often as you like.
 
 ### If something goes wrong
 

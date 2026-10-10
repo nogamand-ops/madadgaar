@@ -5,6 +5,11 @@ import 'package:madadgaar_core/madadgaar_core.dart';
 final helperProfileProvider = FutureProvider.autoDispose<HelperProfile?>((ref) async {
   final user = ref.watch(currentUserProvider);
   if (user == null) return null;
+  final sub = ref.read(realtimeClientProvider).events.listen((event) {
+    final payload = event.payload;
+    if (event.type == 'helper.updated' && payload is Map && payload['id'] == user.id) ref.invalidateSelf();
+  });
+  ref.onDispose(sub.cancel);
   try {
     return await ref.watch(madadgaarApiProvider).getHelper(user.id);
   } catch (_) {

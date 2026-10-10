@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:madadgaar_core/madadgaar_core.dart';
+
+part 'admin_actions.dart';
 
 void main() {
   runApp(const ProviderScope(child: MadadgaarAdminApp()));
@@ -109,6 +113,27 @@ final _servicesProvider = FutureProvider.autoDispose((ref) => ref.watch(madadgaa
 
 final _navIndexProvider = StateProvider<int>((ref) => 0);
 
+const _liveEventPrefixes = ['request.', 'helper.updated', 'dispute.', 'payment.', 'rating.'];
+
+final _liveRefreshProvider = Provider.autoDispose<void>((ref) {
+  Timer? debounce;
+  final sub = ref.read(realtimeClientProvider).events.listen((event) {
+    if (!_liveEventPrefixes.any(event.type.startsWith)) return;
+    debounce?.cancel();
+    debounce = Timer(const Duration(milliseconds: 400), () {
+      ref.invalidate(_dashboardProvider);
+      ref.invalidate(_analyticsProvider);
+      ref.invalidate(_activeRequestsProvider);
+      ref.invalidate(_allRequestsProvider);
+      ref.invalidate(_helpersProvider);
+    });
+  });
+  ref.onDispose(() {
+    debounce?.cancel();
+    sub.cancel();
+  });
+});
+
 const _navItems = [
   (icon: Icons.space_dashboard_outlined, selectedIcon: Icons.space_dashboard_rounded, label: 'Dashboard'),
   (icon: Icons.receipt_long_outlined, selectedIcon: Icons.receipt_long_rounded, label: 'Requests'),
@@ -130,6 +155,7 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(_liveRefreshProvider);
     final navIndex = ref.watch(_navIndexProvider);
     final compact = MediaQuery.sizeOf(context).width < 900;
     final gutter = compact ? AppSpacing.lg : AppSpacing.xxl;
@@ -308,10 +334,40 @@ class _OverviewTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final dashboard = ref.watch(_dashboardProvider);
     final analytics = ref.watch(_analyticsProvider);
+    final pendingCount =
+        ref.watch(_helpersProvider).value?.where((h) => h.verificationStatus == VerificationStatus.pending).length ?? 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (pendingCount > 0) ...[
+          Material(
+            color: AppColors.warning.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              onTap: () => ref.read(_navIndexProvider.notifier).state = 2,
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Row(
+                  children: [
+                    const Icon(Icons.how_to_reg_rounded, color: AppColors.warning),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Text(
+                        pendingCount == 1 ? '1 new helper is waiting for approval' : '$pendingCount new helpers are waiting for approval',
+                        style: AppTextStyles.bodyStrong,
+                      ),
+                    ),
+                    const Text('Review', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.amberText)),
+                    const Icon(Icons.chevron_right_rounded, color: AppColors.amberText),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xl),
+        ],
         Text('Live overview', style: AppTextStyles.h2),
         const SizedBox(height: AppSpacing.md),
         dashboard.when(
@@ -370,13 +426,17 @@ class _RequestsTab extends ConsumerWidget {
         }
         return _Table(
           columns: const ['Request', 'Service', 'Location', 'Status', 'Price', 'Created'],
-          flexes: const [2, 2, 3, 2, 2, 2],
+          flexes: const [2, 2, 3, 3, 2, 2],
+          onRowTap: (i) => _showAdminSheet(context, _RequestSheet(requestId: list[i].id)),
           rows: list
               .map((r) => [
                     Text('#${r.id.substring(r.id.length - 6)}', style: AppTextStyles.bodyStrong),
                     Row(children: [ServiceIconBadge(serviceKey: r.serviceKey, size: 26), const SizedBox(width: AppSpacing.sm), Flexible(child: Text(r.serviceKey, overflow: TextOverflow.ellipsis))]),
                     Text(r.pickupLocation.address ?? '—', maxLines: 1, overflow: TextOverflow.ellipsis),
-                    StatusBadge(r.status),
+                    Padding(
+                      padding: const EdgeInsets.only(right: AppSpacing.sm),
+                      child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: StatusBadge(r.status)),
+                    ),
                     MoneyText(r.pricing.breakdown.total, style: AppTextStyles.bodyStrong),
                     Text(relativeTime(r.createdAt), style: AppTextStyles.caption.copyWith(color: Theme.of(context).textTheme.bodySmall?.color)),
                   ])
@@ -400,9 +460,11 @@ class _HelpersTab extends ConsumerWidget {
         if (list.isEmpty) {
           return const EmptyStateView(icon: Icons.groups_rounded, title: 'No helpers yet', message: 'Registered helpers will show up here.');
         }
-        return _Table(
+        final pending = list.where((h) => h.verificationStatus == VerificationStatus.pending).toList();
+        final table = _Table(
           columns: const ['Helper', 'City', 'Rating', 'Jobs', 'Verification', 'Online'],
           flexes: const [3, 2, 2, 2, 2, 1],
+          onRowTap: (i) => _showAdminSheet(context, _HelperSheet(helperId: list[i].id)),
           rows: list
               .map((h) => [
                     Row(children: [
@@ -422,6 +484,29 @@ class _HelpersTab extends ConsumerWidget {
                     Container(width: 9, height: 9, decoration: BoxDecoration(shape: BoxShape.circle, color: h.isOnline ? AppColors.success : const Color(0xFFD4D4D8))),
                   ])
               .toList(),
+        );
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (pending.isNotEmpty) ...[
+              Text('Waiting for approval (${pending.length})', style: AppTextStyles.h2),
+              const SizedBox(height: 4),
+              Text(
+                'New helpers can\'t go online or receive jobs until you approve them.',
+                style: AppTextStyles.description.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              for (final h in pending)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                  child: _PendingHelperCard(helper: h),
+                ),
+              const SizedBox(height: AppSpacing.lg),
+              Text('All helpers', style: AppTextStyles.h2),
+              const SizedBox(height: AppSpacing.md),
+            ],
+            table,
+          ],
         );
       },
       loading: () => const Padding(padding: EdgeInsets.all(AppSpacing.xl), child: LoadingView()),
@@ -565,8 +650,9 @@ class _Table extends StatelessWidget {
   final List<String> columns;
   final List<int> flexes;
   final List<List<Widget>> rows;
+  final ValueChanged<int>? onRowTap;
 
-  const _Table({required this.columns, required this.flexes, required this.rows});
+  const _Table({required this.columns, required this.flexes, required this.rows, this.onRowTap});
 
   static const _minWidth = 720.0;
 
@@ -597,18 +683,23 @@ class _Table extends StatelessWidget {
               children: [
                 for (var i = 0; i < columns.length; i++)
                   Expanded(flex: flexes[i], child: Text(columns[i], style: AppTextStyles.label.copyWith(color: AppColors.lightTextSecondary))),
+                if (onRowTap != null) const SizedBox(width: 18),
               ],
             ),
           ),
           for (var r = 0; r < rows.length; r++)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-              decoration: BoxDecoration(border: Border(top: BorderSide(color: AppColors.lightBorder, width: r == 0 ? 0 : 1))),
-              child: Row(
-                children: [
-                  for (var i = 0; i < rows[r].length; i++)
-                    Expanded(flex: flexes[i], child: Align(alignment: Alignment.centerLeft, child: rows[r][i])),
-                ],
+            InkWell(
+              onTap: onRowTap == null ? null : () => onRowTap!(r),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+                decoration: BoxDecoration(border: Border(top: BorderSide(color: AppColors.lightBorder, width: r == 0 ? 0 : 1))),
+                child: Row(
+                  children: [
+                    for (var i = 0; i < rows[r].length; i++)
+                      Expanded(flex: flexes[i], child: Align(alignment: Alignment.centerLeft, child: rows[r][i])),
+                    if (onRowTap != null) const Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.lightTextSecondary),
+                  ],
+                ),
               ),
             ),
         ],

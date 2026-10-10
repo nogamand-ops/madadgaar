@@ -13,7 +13,7 @@ const FORWARD_TRANSITIONS = {
   ARRIVED: ['SERVICE_STARTED'],
   SERVICE_STARTED: ['COMPLETED'],
 };
-const CANCELLABLE_STATUSES = ['SEARCHING', 'HELPER_ON_THE_WAY', 'ARRIVED', 'SERVICE_STARTED'];
+const CANCELLABLE_STATUSES = ['SEARCHING', 'ACCEPTED', 'HELPER_ON_THE_WAY', 'ARRIVED', 'SERVICE_STARTED'];
 
 function publicRequest(r) {
   return r; // demo scope: no field redaction needed beyond what's already role-scoped by route guards
@@ -188,7 +188,7 @@ router.post('/:id/cancel', requireAuth, (req, res) => {
   request.status = 'CANCELLED';
   request.cancelledAt = new Date().toISOString();
   request.cancelReason = reason || 'Other';
-  request.cancelledBy = cancelledBy || (isCustomer ? 'customer' : 'helper');
+  request.cancelledBy = !isCustomer && !isHelper ? 'admin' : cancelledBy || (isCustomer ? 'customer' : 'helper');
   request.cancellationFeeCharged = feeCharged;
 
   clearOfferTimer(request.id);
@@ -202,8 +202,14 @@ router.post('/:id/cancel', requireAuth, (req, res) => {
   }
 
   broadcast('request.status_changed', request);
-  const otherPartyId = isCustomer ? request.helperId : request.customerId;
-  if (otherPartyId) notify(otherPartyId, 'Request cancelled', `The ${isCustomer ? 'customer' : 'helper'} cancelled this request.`, { requestId: request.id });
+  if (request.cancelledBy === 'admin') {
+    for (const partyId of [request.customerId, request.helperId].filter(Boolean)) {
+      notify(partyId, 'Request cancelled', 'Madadgaar support cancelled this request.', { requestId: request.id });
+    }
+  } else {
+    const otherPartyId = isCustomer ? request.helperId : request.customerId;
+    if (otherPartyId) notify(otherPartyId, 'Request cancelled', `The ${isCustomer ? 'customer' : 'helper'} cancelled this request.`, { requestId: request.id });
+  }
 
   res.json(request);
 });
