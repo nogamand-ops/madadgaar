@@ -8,6 +8,7 @@ import 'package:madadgaar_core/madadgaar_core.dart';
 import 'call_screen.dart';
 import 'cancel_sheet.dart';
 import 'payment_screen.dart';
+import 'request_flow_nav.dart';
 import 'sos_sheet.dart';
 
 final _helperProvider = FutureProvider.family.autoDispose<HelperProfile?, String>((ref, helperId) {
@@ -45,7 +46,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
       }
       if (status == RequestStatus.cancelled && previous?.request?.status != RequestStatus.cancelled) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('This request was cancelled.')));
-        context.go('/home');
+        returnHome(context);
       }
     });
 

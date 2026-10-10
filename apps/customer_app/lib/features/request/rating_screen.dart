@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:madadgaar_core/madadgaar_core.dart';
+
+import 'request_flow_nav.dart';
 
 class RatingScreen extends ConsumerStatefulWidget {
   final String requestId;
@@ -25,7 +26,7 @@ class _RatingScreenState extends ConsumerState<RatingScreen> {
             stars: _stars,
             review: _reviewController.text.trim(),
           );
-      if (mounted) context.go('/home');
+      if (mounted) returnHome(context);
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not submit rating: $e')));
     } finally {
@@ -65,7 +66,7 @@ class _RatingScreenState extends ConsumerState<RatingScreen> {
                       const Spacer(),
                       PrimaryButton(label: 'Submit', onPressed: () => _submit(request), loading: _submitting),
                       const SizedBox(height: AppSpacing.sm),
-                      TextButton(onPressed: () => context.go('/home'), child: const Text('Skip')),
+                      TextButton(onPressed: () => returnHome(context), child: const Text('Skip')),
                     ],
                   ),
                 ),
