@@ -27,8 +27,10 @@ class IncomingOfferView extends ConsumerWidget {
               Text('NEW REQUEST', style: AppTextStyles.overline.copyWith(color: AppColors.primary)),
               const SizedBox(height: AppSpacing.sm),
               Text(service?.name ?? request.serviceKey, style: AppTextStyles.display, textAlign: TextAlign.center),
-              const SizedBox(height: AppSpacing.xl),
+              const Spacer(),
               _CountdownRing(secondsLeft: offer.secondsLeft, total: 15),
+              const SizedBox(height: AppSpacing.md),
+              Text('seconds to respond', style: AppTextStyles.caption.copyWith(color: AppColors.darkTextSecondary)),
               const Spacer(),
               Container(
                 width: double.infinity,
@@ -53,7 +55,7 @@ class IncomingOfferView extends ConsumerWidget {
                     const SizedBox(height: AppSpacing.sm),
                     Row(
                       children: [
-                        const Icon(Icons.social_distance_rounded, size: 18, color: AppColors.secondary),
+                        const Icon(Icons.social_distance_rounded, size: 18, color: AppColors.darkTextSecondary),
                         const SizedBox(width: AppSpacing.xs),
                         Text('${request.distanceKm.toStringAsFixed(1)} km away', style: AppTextStyles.body),
                       ],
@@ -63,7 +65,7 @@ class IncomingOfferView extends ConsumerWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.secondary),
+                          const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.darkTextSecondary),
                           const SizedBox(width: AppSpacing.xs),
                           Expanded(
                             child: Text('"${request.details['description']}"', style: AppTextStyles.body.copyWith(fontStyle: FontStyle.italic)),
@@ -115,22 +117,22 @@ class _CountdownRing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 88,
-      height: 88,
+      width: 132,
+      height: 132,
       child: Stack(
         alignment: Alignment.center,
         children: [
           SizedBox(
-            width: 88,
-            height: 88,
+            width: 132,
+            height: 132,
             child: CircularProgressIndicator(
               value: secondsLeft / total,
-              strokeWidth: 5,
+              strokeWidth: 7,
               color: AppColors.primary,
               backgroundColor: AppColors.darkBorder,
             ),
           ),
-          Text('$secondsLeft', style: AppTextStyles.h1),
+          Text('$secondsLeft', style: AppTextStyles.display),
         ],
       ),
     );

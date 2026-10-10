@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:madadgaar_core/madadgaar_core.dart';
 
 import '../features/helper_earnings/earnings_screen.dart';
+import '../features/helper_home/helper_home_providers.dart';
 import '../features/helper_home/helper_home_screen.dart';
+import '../features/helper_home/widgets/incoming_offer_view.dart';
 import '../features/helper_jobs/jobs_screen.dart';
 import '../features/helper_profile/helper_profile_screen.dart';
 
@@ -14,6 +17,11 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final index = ref.watch(helperTabIndexProvider);
+    final offer = ref.watch(incomingOfferProvider);
+
+    if (offer != null) {
+      return Theme(data: AppTheme.dark(), child: IncomingOfferView(offer: offer));
+    }
 
     return Scaffold(
       body: IndexedStack(

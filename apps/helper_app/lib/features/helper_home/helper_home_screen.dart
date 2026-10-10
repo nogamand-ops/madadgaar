@@ -4,21 +4,15 @@ import 'package:madadgaar_core/madadgaar_core.dart';
 
 import 'helper_home_providers.dart';
 import 'widgets/helper_active_job_view.dart';
-import 'widgets/incoming_offer_view.dart';
 
 class HelperHomeScreen extends ConsumerWidget {
   const HelperHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final offer = ref.watch(incomingOfferProvider);
     final profileAsync = ref.watch(helperProfileProvider);
     final activeJobAsync = ref.watch(myActiveJobProvider);
     final earningsAsync = ref.watch(helperEarningsProvider);
-
-    if (offer != null) {
-      return IncomingOfferView(offer: offer);
-    }
 
     return Scaffold(
       body: SafeArea(
